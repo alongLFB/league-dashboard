@@ -3,7 +3,9 @@
     "title": "Taste / League",
     "logout": "退出登录",
     "searchPlaceholder": "搜索账号...",
-    "addAccount": "添加账号"
+    "addAccount": "添加账号",
+    "accountsTitle": "账号列表",
+    "noAccounts": "暂无账号数据"
   },
   "Login": {
     "title": "Taste / League",
@@ -38,5 +40,9 @@
   },
   "Validation": {
     "missingTag": "召唤师 ID 必须包含 \"#\" 标签 (例如 Name#1234)"
+  },
+  "Metadata": {
+    "title": "Taste / League",
+    "description": "极简英雄联盟账号管理面板"
   }
 }

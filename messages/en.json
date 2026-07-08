@@ -3,7 +3,9 @@
     "title": "Taste / League",
     "logout": "Logout",
     "searchPlaceholder": "Search Account...",
-    "addAccount": "Add New"
+    "addAccount": "Add New",
+    "accountsTitle": "Accounts",
+    "noAccounts": "No accounts found"
   },
   "Login": {
     "title": "Taste / League",
@@ -38,5 +40,9 @@
   },
   "Validation": {
     "missingTag": "Summoner ID must contain a \"#\" tag (e.g. Name#1234)"
+  },
+  "Metadata": {
+    "title": "Taste / League",
+    "description": "Minimalist League of Legends Account Manager"
   }
 }
