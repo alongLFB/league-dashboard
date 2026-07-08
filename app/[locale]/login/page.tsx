@@ -18,7 +18,8 @@ export default function LoginPage() {
       setLoading(true);
       const res = await login(password);
       if (res.success) {
-        router.push('/');
+        router.replace('/');
+        router.refresh();
       } else {
         setError(true);
         setPassword('');
