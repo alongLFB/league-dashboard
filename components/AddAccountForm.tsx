@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, X, Loader2, Eye, EyeOff, Globe, Tag, UserCircle, User, Lock } from 'lucide-react';
+import { Plus, X, Loader2, Eye, EyeOff, Globe, Tag, UserCircle, User, Lock, ChevronDown } from 'lucide-react';
 import { addAccount } from '@/app/actions/accounts';
 
 const REGIONS = [
@@ -94,7 +94,6 @@ export function AddAccountForm() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
                   {/* Region */}
                   <div className="relative group">
                     <Globe size={14} className="absolute left-0 bottom-2.5 text-gray-500 group-focus-within:text-purple-400 transition-colors pointer-events-none" />
@@ -102,12 +101,13 @@ export function AddAccountForm() {
                       required 
                       value={formData.region} 
                       onChange={e => setFormData({...formData, region: e.target.value})}
-                      className="w-full bg-transparent border-b border-gray-800 pb-2 pl-6 pr-2 text-sm tracking-wider text-gray-200 outline-none focus:border-purple-500 transition-colors cursor-pointer font-medium appearance-none"
+                      className="w-full bg-transparent border-b border-gray-800 pb-2 pl-6 pr-6 text-sm tracking-wider text-gray-200 outline-none focus:border-purple-500 transition-colors cursor-pointer font-medium appearance-none"
                     >
                       {REGIONS.map(r => (
                         <option key={r.label} value={r.label} className="bg-gray-900 text-gray-200">{r.label}</option>
                       ))}
                     </select>
+                    <ChevronDown size={14} className="absolute right-0 bottom-2.5 text-gray-500 pointer-events-none" />
                   </div>
                   
                   {/* Alias */}
@@ -119,7 +119,6 @@ export function AddAccountForm() {
                       className="w-full bg-transparent border-b border-gray-800 pb-2 pl-6 text-sm tracking-wider text-gray-200 outline-none focus:border-purple-500 transition-colors placeholder:text-gray-700 font-medium" 
                     />
                   </div>
-                </div>
                 
                 {/* Summoner ID */}
                 <div className="relative group">
