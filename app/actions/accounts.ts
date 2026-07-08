@@ -65,3 +65,29 @@ export async function deleteAccount(id: string) {
   
   revalidatePath('/');
 }
+
+export async function updateAccount(id: string, data: {
+  region: string;
+  alias: string;
+  summonerId: string;
+  username: string;
+  password: string;
+}) {
+  await requireAuth();
+  
+  const encryptedPassword = encrypt(data.password);
+  
+  await prisma.account.update({
+    where: { id },
+    data: {
+      region: data.region,
+      alias: data.alias,
+      summonerId: data.summonerId,
+      username: data.username,
+      password: encryptedPassword,
+    }
+  });
+  
+  revalidatePath('/');
+}
+
