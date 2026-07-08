@@ -1,23 +1,38 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, X, Loader2 } from 'lucide-react';
+import { Plus, X, Loader2, Eye, EyeOff } from 'lucide-react';
 import { addAccount } from '@/app/actions/accounts';
+
+const REGIONS = [
+  'EUW', 'NA', 'KR', 'EUNE', 'BR', 'JP', 'LAN', 'LAS', 'OCE', 'TR', 'RU', 'PH', 'SG', 'TH', 'TW', 'VN', 'PBE'
+];
 
 export function AddAccountForm() {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
   const [formData, setFormData] = useState({
-    region: '', alias: '', summonerId: '', username: '', password: ''
+    region: 'EUW', alias: '', summonerId: '', username: '', password: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    
+    // Validate Summoner ID contains a '#'
+    if (!formData.summonerId.includes('#')) {
+      setError('Summoner ID must contain a "#" tag (e.g. Name#1234)');
+      return;
+    }
+
     setLoading(true);
     await addAccount(formData);
     setLoading(false);
     setIsOpen(false);
-    setFormData({ region: '', alias: '', summonerId: '', username: '', password: '' });
+    setFormData({ region: 'EUW', alias: '', summonerId: '', username: '', password: '' });
   };
 
   return (
@@ -37,31 +52,45 @@ export function AddAccountForm() {
             
             <div className="bg-[#0d1117] border border-gray-800 rounded-3xl p-8 relative shadow-2xl">
               <button 
-                onClick={() => setIsOpen(false)}
+                onClick={() => { setIsOpen(false); setError(null); }}
                 className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors focus:outline-none bg-gray-900 p-2 rounded-full border border-gray-800"
               >
                 <X size={16} />
               </button>
-              <h3 className="text-xl font-bold mb-8 tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+              <h3 className="text-xl font-bold mb-6 tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
                 New Account
               </h3>
               
+              {error && (
+                <div className="mb-6 p-3 bg-red-900/30 border border-red-500/50 rounded-lg text-red-400 text-xs font-medium">
+                  {error}
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
+                  <select 
+                    required 
+                    value={formData.region} 
+                    onChange={e => setFormData({...formData, region: e.target.value})}
+                    className="bg-transparent border-b border-gray-800 pb-2 text-sm tracking-wider text-gray-200 outline-none focus:border-purple-500 transition-colors cursor-pointer font-medium"
+                  >
+                    {REGIONS.map(r => (
+                      <option key={r} value={r} className="bg-gray-900 text-gray-200">{r}</option>
+                    ))}
+                  </select>
                   <input 
-                    required placeholder="REGION (e.g. EUW)" 
-                    value={formData.region} onChange={e => setFormData({...formData, region: e.target.value})}
-                    className="bg-transparent border-b border-gray-800 pb-2 text-sm uppercase tracking-wider text-gray-200 outline-none focus:border-purple-500 transition-colors placeholder:text-gray-700 font-medium" 
-                  />
-                  <input 
-                    required placeholder="ALIAS (e.g. SMURF)" 
+                    required placeholder="ALIAS (e.g. Smurf 1)" 
                     value={formData.alias} onChange={e => setFormData({...formData, alias: e.target.value})}
                     className="bg-transparent border-b border-gray-800 pb-2 text-sm tracking-wider text-gray-200 outline-none focus:border-purple-500 transition-colors placeholder:text-gray-700 font-medium" 
                   />
                 </div>
                 <input 
-                  required placeholder="SUMMONER ID" 
-                  value={formData.summonerId} onChange={e => setFormData({...formData, summonerId: e.target.value})}
+                  required placeholder="SUMMONER ID (e.g. Name#Tag)" 
+                  value={formData.summonerId} onChange={e => {
+                    setFormData({...formData, summonerId: e.target.value});
+                    if (error) setError(null);
+                  }}
                   className="w-full bg-transparent border-b border-gray-800 pb-2 text-sm tracking-wider text-gray-200 outline-none focus:border-purple-500 transition-colors placeholder:text-gray-700 font-mono" 
                 />
                 <input 
@@ -69,11 +98,22 @@ export function AddAccountForm() {
                   value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})}
                   className="w-full bg-transparent border-b border-gray-800 pb-2 text-sm tracking-wider text-gray-200 outline-none focus:border-purple-500 transition-colors placeholder:text-gray-700 font-mono" 
                 />
-                <input 
-                  required type="password" placeholder="PASSWORD" 
-                  value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})}
-                  className="w-full bg-transparent border-b border-gray-800 pb-2 text-sm text-gray-200 outline-none focus:border-purple-500 transition-colors placeholder:text-gray-700 font-mono tracking-wider" 
-                />
+                
+                <div className="relative">
+                  <input 
+                    required type={showPassword ? "text" : "password"} placeholder="PASSWORD" 
+                    value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})}
+                    className="w-full bg-transparent border-b border-gray-800 pb-2 pr-8 text-sm text-gray-200 outline-none focus:border-purple-500 transition-colors placeholder:text-gray-700 font-mono tracking-wider" 
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-0 top-0 bottom-2 flex items-center text-gray-500 hover:text-purple-400 transition-colors focus:outline-none"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                
                 <div className="pt-8 flex justify-end">
                   <button 
                     disabled={loading}
