@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Plus, X, Loader2, Eye, EyeOff, Globe, Tag, UserCircle, User, Lock, ChevronDown } from 'lucide-react';
 import { addAccount } from '@/app/actions/accounts';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 const REGIONS = [
   { value: 'NA', label: 'North America' },
@@ -34,6 +35,11 @@ export function AddAccountForm() {
     region: 'North America', alias: '', summonerId: '', username: '', password: ''
   });
 
+  const tForm = useTranslations('Form');
+  const tToast = useTranslations('Toast');
+  const tVal = useTranslations('Validation');
+  const tDash = useTranslations('Dashboard');
+
   const resetForm = () => {
     setFormData({ region: 'North America', alias: '', summonerId: '', username: '', password: '' });
     setError(null);
@@ -51,14 +57,14 @@ export function AddAccountForm() {
     
     // Validate Summoner ID contains a '#'
     if (!formData.summonerId.includes('#')) {
-      setError('Summoner ID must contain a "#" tag (e.g. Name#1234)');
+      setError(tVal('missingTag'));
       return;
     }
 
     setLoading(true);
     await addAccount(formData);
     setLoading(false);
-    toast.success('Account added successfully');
+    toast.success(tToast('added'));
     setIsOpen(false);
     resetForm();
   };
@@ -69,7 +75,7 @@ export function AddAccountForm() {
         onClick={() => setIsOpen(true)}
         className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600/80 to-purple-600/80 hover:from-blue-500 hover:to-purple-500 rounded-full font-bold shadow-lg shadow-purple-900/20 transition-all border border-purple-500/30 text-xs tracking-wider uppercase focus:outline-none"
       >
-        <Plus size={16} /> Add New
+        <Plus size={16} /> {tDash('addAccount')}
       </button>
 
       {isOpen && (
@@ -86,7 +92,7 @@ export function AddAccountForm() {
                 <X size={16} />
               </button>
               <h3 className="text-xl font-bold mb-6 tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-                New Account
+                {tForm('newAccount')}
               </h3>
               
               {error && (
@@ -116,7 +122,7 @@ export function AddAccountForm() {
                   <div className="relative group">
                     <Tag size={14} className="absolute left-0 bottom-2.5 text-gray-500 group-focus-within:text-purple-400 transition-colors pointer-events-none" />
                     <input 
-                      required placeholder="ALIAS (e.g. Smurf)" 
+                      required placeholder={tForm('alias')} 
                       value={formData.alias} onChange={e => setFormData({...formData, alias: e.target.value})}
                       className="w-full bg-transparent border-b border-gray-800 pb-2 pl-6 text-sm tracking-wider text-gray-200 outline-none focus:border-purple-500 transition-colors placeholder:text-gray-700 font-medium" 
                     />
@@ -126,7 +132,7 @@ export function AddAccountForm() {
                 <div className="relative group">
                   <UserCircle size={14} className="absolute left-0 bottom-2.5 text-gray-500 group-focus-within:text-purple-400 transition-colors pointer-events-none" />
                   <input 
-                    required placeholder="SUMMONER ID (e.g. Name#Tag)" 
+                    required placeholder={tForm('summonerId')} 
                     value={formData.summonerId} onChange={e => {
                       setFormData({...formData, summonerId: e.target.value});
                       if (error) setError(null);
@@ -139,7 +145,7 @@ export function AddAccountForm() {
                 <div className="relative group">
                   <User size={14} className="absolute left-0 bottom-2.5 text-gray-500 group-focus-within:text-purple-400 transition-colors pointer-events-none" />
                   <input 
-                    required placeholder="LOGIN USERNAME" 
+                    required placeholder={tForm('username')} 
                     value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})}
                     className="w-full bg-transparent border-b border-gray-800 pb-2 pl-6 text-sm tracking-wider text-gray-200 outline-none focus:border-purple-500 transition-colors placeholder:text-gray-700 font-mono" 
                   />
@@ -149,7 +155,7 @@ export function AddAccountForm() {
                 <div className="relative group">
                   <Lock size={14} className="absolute left-0 bottom-2.5 text-gray-500 group-focus-within:text-purple-400 transition-colors pointer-events-none" />
                   <input 
-                    required type={showPassword ? "text" : "password"} placeholder="PASSWORD" 
+                    required type={showPassword ? "text" : "password"} placeholder={tForm('password')} 
                     value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})}
                     className="w-full bg-transparent border-b border-gray-800 pb-2 pl-6 pr-8 text-sm text-gray-200 outline-none focus:border-purple-500 transition-colors placeholder:text-gray-700 font-mono tracking-wider" 
                   />
@@ -169,7 +175,7 @@ export function AddAccountForm() {
                     className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-full text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-50 shadow-lg shadow-purple-900/20 focus:outline-none"
                   >
                     {loading && <Loader2 size={14} className="animate-spin" />}
-                    Save
+                    {tForm('save')}
                   </button>
                 </div>
               </form>

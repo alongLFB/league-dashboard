@@ -1,0 +1,42 @@
+{
+  "Dashboard": {
+    "title": "Taste / League",
+    "logout": "退出登录",
+    "searchPlaceholder": "搜索账号...",
+    "addAccount": "添加账号"
+  },
+  "Login": {
+    "title": "Taste / League",
+    "placeholder": "输入管理员密钥"
+  },
+  "Form": {
+    "newAccount": "添加新账号",
+    "editAccount": "编辑账号",
+    "save": "保存",
+    "update": "更新",
+    "cancel": "取消",
+    "delete": "删除",
+    "deleteTitle": "删除账号",
+    "deleteConfirm": "确定要删除 {alias} 吗？此操作无法撤销。",
+    "region": "服务器大区",
+    "alias": "账号别名 (如：欧服大号)",
+    "summonerId": "召唤师 ID (如：Faker#KR1)",
+    "username": "登录账号",
+    "password": "登录密码"
+  },
+  "Card": {
+    "summonerId": "召唤师 ID",
+    "username": "登录账号",
+    "password": "登录密码",
+    "shareText": "🎮 英雄联盟账号\n🌍 大区: {region}\n🆔 召唤师: {summonerId}\n👤 账号: {username}\n🔑 密码: {password}"
+  },
+  "Toast": {
+    "added": "账号添加成功",
+    "updated": "账号更新成功",
+    "deleted": "账号删除成功",
+    "copied": "账号信息已复制至剪贴板"
+  },
+  "Validation": {
+    "missingTag": "召唤师 ID 必须包含 \"#\" 标签 (例如 Name#1234)"
+  }
+}

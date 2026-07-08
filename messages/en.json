@@ -1,0 +1,42 @@
+{
+  "Dashboard": {
+    "title": "Taste / League",
+    "logout": "Logout",
+    "searchPlaceholder": "Search Account...",
+    "addAccount": "Add New"
+  },
+  "Login": {
+    "title": "Taste / League",
+    "placeholder": "ENTER KEY"
+  },
+  "Form": {
+    "newAccount": "New Account",
+    "editAccount": "Edit Account",
+    "save": "Save",
+    "update": "Update",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteTitle": "Delete Account",
+    "deleteConfirm": "Are you sure you want to delete {alias}? This action cannot be undone.",
+    "region": "REGION",
+    "alias": "ALIAS (e.g. Smurf)",
+    "summonerId": "SUMMONER ID (e.g. Name#Tag)",
+    "username": "LOGIN USERNAME",
+    "password": "PASSWORD"
+  },
+  "Card": {
+    "summonerId": "SUMMONER ID",
+    "username": "USERNAME",
+    "password": "PASSWORD",
+    "shareText": "🎮 League of Legends Account\n🌍 Region: {region}\n🆔 Summoner ID: {summonerId}\n👤 Username: {username}\n🔑 Password: {password}"
+  },
+  "Toast": {
+    "added": "Account added successfully",
+    "updated": "Account updated successfully",
+    "deleted": "Account deleted successfully",
+    "copied": "Account details copied for sharing!"
+  },
+  "Validation": {
+    "missingTag": "Summoner ID must contain a \"#\" tag (e.g. Name#1234)"
+  }
+}

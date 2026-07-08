@@ -3,11 +3,14 @@ import { AccountCard } from '@/components/AccountCard';
 import { AddAccountForm } from '@/components/AddAccountForm';
 import { logout } from '@/app/actions/auth';
 import { LogOut } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
   const accounts = await getAccounts();
+  const t = await getTranslations('Dashboard');
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-white overflow-hidden relative selection:bg-purple-500/30 pb-20 font-sans">
@@ -19,11 +22,14 @@ export default async function DashboardPage() {
           <h1 className="text-sm font-black tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
             TASTE <span className="text-gray-600 font-light mx-2">/</span> LEAGUE
           </h1>
-          <form action={logout}>
-            <button className="text-gray-500 hover:text-purple-400 transition-colors focus:outline-none">
-              <LogOut size={16} />
-            </button>
-          </form>
+          <div className="flex items-center gap-6">
+            <LanguageSwitcher />
+            <form action={logout}>
+              <button className="text-gray-500 hover:text-purple-400 transition-colors focus:outline-none" title={t('logout')}>
+                <LogOut size={16} />
+              </button>
+            </form>
+          </div>
         </div>
       </header>
 
