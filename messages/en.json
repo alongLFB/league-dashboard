@@ -45,5 +45,39 @@
   "Metadata": {
     "title": "Taste / League",
     "description": "Minimalist League of Legends Account Manager"
+  },
+  "Footer": {
+    "about": "About",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use",
+    "contact": "Contact Us"
+  },
+  "About": {
+    "title": "About Taste League",
+    "p1": "Taste League Dashboard is a minimalist, elegant, and highly secure multi-account management tool tailored for League of Legends players.",
+    "p2": "We believe that managing multiple smurf accounts should not be a cluttered or unsafe experience. This project strictly adheres to the philosophy of extreme restraint and premium aesthetics, focusing purely on the core experience.",
+    "openSource": "Open Source",
+    "p3": "Taste League Dashboard is an open-source project. You can find the source code, report issues, or contribute on GitHub.",
+    "githubBtn": "View on GitHub"
+  },
+  "Privacy": {
+    "title": "Privacy Policy",
+    "h1": "Data Security & Encryption",
+    "p1": "Your data privacy and security are our top priorities. All account passwords and sensitive data are double-encrypted using Node.js native crypto AES-256-GCM algorithms.",
+    "h2": "Local Storage Only",
+    "p2": "This dashboard does not transmit your League of Legends credentials to any third-party servers. All data remains encrypted and strictly localized to your own deployment environment."
+  },
+  "Terms": {
+    "title": "Terms of Use",
+    "intro": "By accessing and using Taste League Dashboard, you agree to the following terms:",
+    "h1": "Personal Use Only",
+    "p1": "This dashboard is designed strictly for personal use to help players manage their own accounts.",
+    "h2": "Open Source License",
+    "p2": "This project is distributed under the MIT License. The software is provided 'as is', without warranty of any kind, express or implied. The authors are not responsible for any issues arising from the use of this software."
+  },
+  "Contact": {
+    "title": "Contact Us",
+    "desc": "Have questions, suggestions, or found a bug? We'd love to hear from you. The best way to reach out is through our GitHub repository.",
+    "issueBtn": "Open an Issue"
   }
 }
