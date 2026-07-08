@@ -100,42 +100,46 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
         <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 rounded-2xl blur-md opacity-20 group-hover:opacity-40 transition duration-1000 animate-pulse pointer-events-none" />
         
         <div className="relative rounded-2xl border border-gray-800 bg-[#0d1117] p-6 shadow-2xl h-full flex flex-col">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full flex items-center gap-1.5">
+          <div className="flex flex-col gap-3 mb-6 relative">
+            <div className="flex justify-between items-start">
+              {/* Region Tag */}
+              <div className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full inline-flex items-center gap-1.5">
                 <Globe size={10} className="text-blue-400" />
                 <span className="text-[10px] uppercase tracking-widest text-blue-300 font-bold whitespace-nowrap">
                   {region}
                 </span>
               </div>
-              <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-100 to-gray-400 flex items-center gap-1.5">
-                <Tag size={12} className="text-gray-500" />
-                {alias}
-              </span>
+              
+              {/* Action Buttons */}
+              <div className="flex items-center gap-0.5 opacity-100 lg:opacity-0 transition-opacity group-hover:opacity-100 shrink-0 -mt-2 -mr-2">
+                <button 
+                  onClick={handleShare}
+                  className="p-2.5 rounded-full text-gray-500 hover:text-green-400 hover:bg-green-400/10 focus:outline-none transition-all"
+                  title="Share Account"
+                >
+                  <Share2 size={16} />
+                </button>
+                <button 
+                  onClick={openEdit}
+                  className="p-2.5 rounded-full text-gray-500 hover:text-blue-400 hover:bg-blue-400/10 focus:outline-none transition-all"
+                  title="Edit Account"
+                >
+                  <Pencil size={16} />
+                </button>
+                <button 
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="p-2.5 rounded-full text-gray-500 hover:text-red-400 hover:bg-red-400/10 focus:outline-none transition-all"
+                  title="Delete Account"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
-            
-            <div className="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-              <button 
-                onClick={handleShare}
-                className="text-gray-500 hover:text-green-400 focus:outline-none"
-                title="Share Account"
-              >
-                <Share2 size={14} />
-              </button>
-              <button 
-                onClick={openEdit}
-                className="text-gray-500 hover:text-blue-400 focus:outline-none"
-                title="Edit Account"
-              >
-                <Pencil size={14} />
-              </button>
-              <button 
-                onClick={() => setShowDeleteConfirm(true)}
-                className="text-gray-500 hover:text-red-400 focus:outline-none"
-                title="Delete Account"
-              >
-                <Trash2 size={14} />
-              </button>
+
+            {/* Alias */}
+            <div className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-100 to-gray-400 flex items-center gap-2">
+              <Tag size={16} className="text-gray-500 shrink-0" />
+              <span className="truncate">{alias}</span>
             </div>
           </div>
 
