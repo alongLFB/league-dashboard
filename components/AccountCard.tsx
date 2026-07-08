@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Copy, Eye, EyeOff, Trash2, Globe, Tag, UserCircle, User, Lock, Pencil, X, Loader2, ChevronDown, AlertTriangle } from 'lucide-react';
+import { Check, Copy, Eye, EyeOff, Trash2, Globe, Tag, UserCircle, User, Lock, Pencil, X, Loader2, ChevronDown, AlertTriangle, Share2 } from 'lucide-react';
 import { deleteAccount, updateAccount } from '@/app/actions/accounts';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -58,6 +58,12 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
     setTimeout(() => setCopiedField(null), 1500);
   };
 
+  const handleShare = async () => {
+    const text = `🎮 League of Legends Account\n🌍 Region: ${region}\n🆔 Summoner ID: ${summonerId}\n👤 Username: ${username}\n🔑 Password: ${password || ''}`;
+    await navigator.clipboard.writeText(text);
+    toast.success('Account details copied for sharing!');
+  };
+
   const handleDeleteConfirm = async () => {
     setIsDeleting(true);
     await deleteAccount(id);
@@ -110,14 +116,23 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
             
             <div className="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
               <button 
+                onClick={handleShare}
+                className="text-gray-500 hover:text-green-400 focus:outline-none"
+                title="Share Account"
+              >
+                <Share2 size={14} />
+              </button>
+              <button 
                 onClick={openEdit}
                 className="text-gray-500 hover:text-blue-400 focus:outline-none"
+                title="Edit Account"
               >
                 <Pencil size={14} />
               </button>
               <button 
                 onClick={() => setShowDeleteConfirm(true)}
                 className="text-gray-500 hover:text-red-400 focus:outline-none"
+                title="Delete Account"
               >
                 <Trash2 size={14} />
               </button>
