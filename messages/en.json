@@ -36,7 +36,8 @@
     "added": "Account added successfully",
     "updated": "Account updated successfully",
     "deleted": "Account deleted successfully",
-    "copied": "Account details copied for sharing!"
+    "copied": "Account details copied for sharing!",
+    "invalidPassword": "Invalid access key"
   },
   "Validation": {
     "missingTag": "Summoner ID must contain a \"#\" tag (e.g. Name#1234)"

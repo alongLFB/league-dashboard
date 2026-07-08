@@ -5,6 +5,7 @@ import { login } from '@/app/actions/auth';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const [password, setPassword] = useState('');
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const t = useTranslations('Login');
+  const tToast = useTranslations('Toast');
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && password) {
@@ -24,6 +26,7 @@ export default function LoginPage() {
         setError(true);
         setPassword('');
         setLoading(false);
+        toast.error(tToast('invalidPassword'));
       }
     }
   };

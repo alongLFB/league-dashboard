@@ -36,7 +36,8 @@
     "added": "账号添加成功",
     "updated": "账号更新成功",
     "deleted": "账号删除成功",
-    "copied": "账号信息已复制至剪贴板"
+    "copied": "账号信息已复制，快去分享吧！",
+    "invalidPassword": "访问密钥错误"
   },
   "Validation": {
     "missingTag": "召唤师 ID 必须包含 \"#\" 标签 (例如 Name#1234)"
