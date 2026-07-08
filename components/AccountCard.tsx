@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Copy, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { Check, Copy, Eye, EyeOff, Trash2, Globe, Tag, UserCircle, User, Lock } from 'lucide-react';
 import { deleteAccount } from '@/app/actions/accounts';
 import { cn } from '@/lib/utils';
 
@@ -39,12 +39,16 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
       <div className="relative rounded-2xl border border-gray-800 bg-[#0d1117] p-6 shadow-2xl h-full flex flex-col">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full">
-              <span className="text-[10px] uppercase tracking-widest text-blue-300 font-bold">
+            <div className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full flex items-center gap-1.5">
+              <Globe size={10} className="text-blue-400" />
+              <span className="text-[10px] uppercase tracking-widest text-blue-300 font-bold whitespace-nowrap">
                 {region}
               </span>
             </div>
-            <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-100 to-gray-400">{alias}</span>
+            <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-100 to-gray-400 flex items-center gap-1.5">
+              <Tag size={12} className="text-gray-500" />
+              {alias}
+            </span>
           </div>
           <button 
             onClick={handleDelete}
@@ -58,7 +62,9 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
         <div className="space-y-4 flex-1">
           {/* Summoner ID */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-bold text-gray-500 tracking-widest">SUMMONER ID</span>
+            <span className="text-[10px] font-bold text-gray-500 tracking-widest flex items-center gap-1.5">
+              <UserCircle size={12} /> SUMMONER ID
+            </span>
             <div 
               className="flex items-center justify-between cursor-pointer group/item p-2 -mx-2 rounded-lg hover:bg-gray-800/50 transition-colors"
               onClick={() => handleCopy(summonerId, 'summonerId')}
@@ -72,7 +78,9 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
 
           {/* Username */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-bold text-gray-500 tracking-widest">USERNAME</span>
+            <span className="text-[10px] font-bold text-gray-500 tracking-widest flex items-center gap-1.5">
+              <User size={12} /> USERNAME
+            </span>
             <div 
               className="flex items-center justify-between cursor-pointer group/item p-2 -mx-2 rounded-lg hover:bg-gray-800/50 transition-colors"
               onClick={() => handleCopy(username, 'username')}
@@ -87,7 +95,9 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
           {/* Password */}
           <div className="flex flex-col gap-1.5 pt-4 border-t border-gray-800/80 mt-2">
             <div className="flex items-center justify-between px-2 -mx-2">
-              <span className="text-[10px] font-bold text-gray-500 tracking-widest">PASSWORD</span>
+              <span className="text-[10px] font-bold text-gray-500 tracking-widest flex items-center gap-1.5">
+                <Lock size={12} /> PASSWORD
+              </span>
               <button 
                 onClick={(e) => { e.stopPropagation(); setShowPassword(!showPassword); }}
                 className="text-gray-600 hover:text-purple-400 transition-colors focus:outline-none"
