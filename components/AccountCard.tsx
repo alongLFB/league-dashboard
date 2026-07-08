@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Copy, Eye, EyeOff, Trash2, Globe, Tag, UserCircle, User, Lock, Pencil, X, Loader2, ChevronDown } from 'lucide-react';
+import { Check, Copy, Eye, EyeOff, Trash2, Globe, Tag, UserCircle, User, Lock, Pencil, X, Loader2, ChevronDown, AlertTriangle } from 'lucide-react';
 import { deleteAccount, updateAccount } from '@/app/actions/accounts';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const REGIONS = [
   { value: 'NA', label: 'North America' },
@@ -36,7 +37,10 @@ interface AccountCardProps {
 export function AccountCard({ id, region, alias, summonerId, username, password }: AccountCardProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  
+  // Delete State
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   // Edit State
   const [isEditing, setIsEditing] = useState(false);
@@ -54,9 +58,10 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
     setTimeout(() => setCopiedField(null), 1500);
   };
 
-  const handleDelete = async () => {
+  const handleDeleteConfirm = async () => {
     setIsDeleting(true);
     await deleteAccount(id);
+    toast.success('Account deleted successfully');
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -71,6 +76,7 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
     setEditLoading(true);
     await updateAccount(id, formData);
     setEditLoading(false);
+    toast.success('Account updated successfully');
     setIsEditing(false);
     setError(null);
     setEditShowPassword(false);
@@ -110,11 +116,10 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
                 <Pencil size={14} />
               </button>
               <button 
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="text-gray-500 hover:text-red-400 disabled:opacity-50 focus:outline-none"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-gray-500 hover:text-red-400 focus:outline-none"
               >
-                {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                <Trash2 size={14} />
               </button>
             </div>
           </div>
@@ -180,6 +185,43 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0a0a0c]/80 backdrop-blur-md">
+          <div className="relative w-full max-w-sm">
+            <div className="absolute -inset-1 bg-red-600/30 rounded-3xl blur-lg animate-pulse pointer-events-none" />
+            
+            <div className="bg-[#0d1117] border border-red-900/50 rounded-3xl p-8 relative shadow-2xl text-center">
+              <div className="mx-auto w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+                <AlertTriangle size={24} className="text-red-500" />
+              </div>
+              
+              <h3 className="text-lg font-bold mb-2 tracking-wide text-white">Delete Account</h3>
+              <p className="text-sm text-gray-400 mb-8 leading-relaxed">
+                Are you sure you want to delete <strong className="text-gray-200">{alias}</strong>? This action cannot be undone.
+              </p>
+              
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                  className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-colors focus:outline-none"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleDeleteConfirm}
+                  disabled={isDeleting}
+                  className="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 bg-red-600/80 hover:bg-red-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-colors focus:outline-none"
+                >
+                  {isDeleting ? <Loader2 size={14} className="animate-spin" /> : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       {isEditing && (

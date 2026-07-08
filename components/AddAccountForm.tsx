@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Plus, X, Loader2, Eye, EyeOff, Globe, Tag, UserCircle, User, Lock, ChevronDown } from 'lucide-react';
 import { addAccount } from '@/app/actions/accounts';
+import { toast } from 'sonner';
 
 const REGIONS = [
   { value: 'NA', label: 'North America' },
@@ -57,6 +58,7 @@ export function AddAccountForm() {
     setLoading(true);
     await addAccount(formData);
     setLoading(false);
+    toast.success('Account added successfully');
     setIsOpen(false);
     resetForm();
   };
