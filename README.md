@@ -29,7 +29,11 @@
 ## 🚀 部署与启动配置
 
 ### 1. 环境准备
-克隆或下载项目后，在根目录下创建（或修改） `.env` 环境变量文件，并按如下格式配置必需的凭证信息：
+克隆或下载项目后，复制环境示例文件，并按需修改 `.env` 环境变量文件中的凭证信息和端口：
+
+```bash
+cp .env.example .env
+```
 
 ```env
 # 您的面板登录主密码（随意设定，登录系统时验证）
@@ -41,25 +45,43 @@ ENCRYPTION_KEY="0123456789abcdef0123456789abcdef"
 # JWT 签名安全密钥
 JWT_SECRET="super-secret-jwt-key"
 
-# PostgreSQL 数据库连接地址
-DATABASE_URL="postgresql://username:password@localhost:5432/league_dashboard?schema=public"
+# 运行端口配置
+APP_PORT="3000"
+DB_PORT="5432"
+
+# 数据库连接独立变量
+DB_USER="postgres"
+DB_PASSWORD="your_secure_password"
+DB_NAME="league_dashboard"
+
+# PostgreSQL 数据库连接地址 (用于本地运行, Docker Compose 部署会自动覆盖这个变量)
+DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}?schema=public"
 ```
 
-### 2. 同步数据库结构
-当您配置好真实的 `DATABASE_URL` 之后，运行以下 Prisma 迁移指令将表结构推送到数据库中：
+### 2. 一键部署 (推荐)
+本项目已提供完善的 `compose.yaml`，内置了 PostgreSQL 数据库和 Next.js 应用容器化部署：
 
 ```bash
+docker compose up -d --build
+```
+> Docker 将会自动下载数据库，构建应用镜像，同步数据表结构并在后台运行。
+
+成功启动后，在浏览器访问 `http://localhost:3000`（如果你修改了 `.env` 里的 `APP_PORT`，请替换为对应的端口）。
+
+### 3. 本地手动启动 (仅开发)
+如果您不希望使用 Docker，在配置好本地 PostgreSQL 并修改 `.env` 后：
+
+```bash
+# 安装依赖
+npm install
+
+# 推送数据库结构
 npx prisma db push
-```
 
-### 3. 安装依赖与启动服务
-如果您尚未安装项目依赖，请先执行 `npm install`。然后通过以下命令启动开发环境服务器：
-
-```bash
+# 启动开发服务器
 npm run dev
 ```
 
-启动成功后，在浏览器访问 `http://localhost:3000`。
 您将面对一个纯净的输入框界面，输入您在 `.env` 中设定的 `ADMIN_SECRET_KEY` 并按下回车，即可进入控制台开始管理您的账号。
 
 ## 📖 相关页面

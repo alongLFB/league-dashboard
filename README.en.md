@@ -29,7 +29,11 @@ This dashboard is a minimalist, elegant, and highly secure multi-account managem
 ## 🚀 Deployment & Configuration
 
 ### 1. Environment Setup
-After cloning or downloading the project, create (or modify) a `.env` file in the root directory and configure the necessary credentials as follows:
+After cloning or downloading the project, copy the environment example file and modify the `.env` file to configure the necessary credentials and ports:
+
+```bash
+cp .env.example .env
+```
 
 ```env
 # Your master password for logging into the dashboard (set randomly, verified on login)
@@ -41,25 +45,43 @@ ENCRYPTION_KEY="0123456789abcdef0123456789abcdef"
 # JWT signing secret key
 JWT_SECRET="super-secret-jwt-key"
 
-# PostgreSQL database connection URL
-DATABASE_URL="postgresql://username:password@localhost:5432/league_dashboard?schema=public"
+# Port Configuration
+APP_PORT="3000"
+DB_PORT="5432"
+
+# Database variables
+DB_USER="postgres"
+DB_PASSWORD="your_secure_password"
+DB_NAME="league_dashboard"
+
+# PostgreSQL database connection URL (Used for local running; Docker Compose will override this)
+DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}?schema=public"
 ```
 
-### 2. Sync Database Schema
-Once you have configured the real `DATABASE_URL`, run the following Prisma migration command to push the schema to the database:
+### 2. One-Click Deployment (Recommended)
+This project provides a complete `compose.yaml` for containerized deployment of both the PostgreSQL database and the Next.js application:
 
 ```bash
+docker compose up -d --build
+```
+> Docker will automatically download the database, build the application image, sync the database schema, and run it in the background.
+
+After successfully starting, visit `http://localhost:3000` in your browser (if you modified `APP_PORT` in `.env`, replace 3000 with your configured port).
+
+### 3. Local Manual Start (Development Only)
+If you prefer not to use Docker, after setting up your local PostgreSQL and `.env`:
+
+```bash
+# Install dependencies
+npm install
+
+# Push database schema
 npx prisma db push
-```
 
-### 3. Install Dependencies & Start Server
-If you haven't installed the project dependencies, execute `npm install` first. Then start the development server with the following command:
-
-```bash
+# Start development server
 npm run dev
 ```
 
-After successfully starting, visit `http://localhost:3000` in your browser.
 You will be greeted by a pure input interface. Enter the `ADMIN_SECRET_KEY` you set in `.env` and press Enter to access the dashboard and manage your accounts.
 
 ## 📖 Related Pages
