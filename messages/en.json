@@ -9,7 +9,21 @@
   },
   "Login": {
     "title": "Taste / League",
-    "placeholder": "ENTER KEY"
+    "usernamePlaceholder": "USERNAME",
+    "passwordPlaceholder": "PASSWORD",
+    "loginBtn": "Login",
+    "createAccount": "Create an Account"
+  },
+  "Register": {
+    "title": "Create Account",
+    "username": "USERNAME",
+    "nickname": "NICKNAME",
+    "email": "EMAIL",
+    "code": "CODE",
+    "password": "PASSWORD",
+    "sendCode": "Send",
+    "registerBtn": "Register",
+    "backToLogin": "Back to Login"
   },
   "Form": {
     "newAccount": "New Account",

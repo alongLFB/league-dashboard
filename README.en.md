@@ -45,7 +45,7 @@ JWT_SECRET="super-secret-jwt-key"
 # Email SMTP Configuration (used for sending verification codes during registration)
 SMTP_HOST="smtp.gmail.com"
 SMTP_PORT="587"
-SMTP_SECURE="true"
+SMTP_SECURE="false"
 SMTP_USER="your-email@gmail.com"
 SMTP_PASS="your-smtp-app-password"
 SMTP_FROM="admin@your-domain.com" # (Optional) Custom sender email, defaults to SMTP_USER if empty

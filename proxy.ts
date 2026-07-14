@@ -6,9 +6,9 @@ import { routing } from '@/i18n/routing';
 export default async function proxy(req: NextRequest) {
   // 1. Auth Logic
   const path = req.nextUrl.pathname;
-  const isLoginRoute = path === '/login' || path.startsWith('/en/login') || path.startsWith('/zh/login');
-  // Protect all routes except login and api
-  const isProtectedRoute = !isLoginRoute && !path.startsWith('/api/');
+  const isAuthRoute = path === '/login' || path === '/register' || path.startsWith('/en/login') || path.startsWith('/zh/login') || path.startsWith('/en/register') || path.startsWith('/zh/register');
+  // Protect all routes except auth and api
+  const isProtectedRoute = !isAuthRoute && !path.startsWith('/api/');
 
   if (isProtectedRoute) {
     const cookie = req.cookies.get('admin_session')?.value;

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { login } from '@/app/actions/auth';
-import { useRouter } from '@/i18n/routing';
+import { useRouter, Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { toast } from 'sonner';
@@ -50,7 +50,7 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={loading}
-              placeholder="USERNAME"
+              placeholder={t('usernamePlaceholder')}
               className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.4em] uppercase text-sm transition-all duration-500 placeholder:text-gray-800 disabled:opacity-50 focus:border-transparent"
               autoFocus
               spellCheck={false}
@@ -64,7 +64,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
-              placeholder="PASSWORD"
+              placeholder={t('passwordPlaceholder')}
               className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.4em] uppercase text-sm transition-all duration-500 placeholder:text-gray-800 disabled:opacity-50 focus:border-transparent"
               spellCheck={false}
               autoComplete="off"
@@ -75,16 +75,16 @@ export default function LoginPage() {
             disabled={loading || !username || !password}
             className="w-full flex justify-center py-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-xs tracking-[0.2em] uppercase font-bold disabled:opacity-50"
           >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : 'Login'}
+            {loading ? <Loader2 size={16} className="animate-spin" /> : t('loginBtn')}
           </button>
         </form>
         <div className="mt-8 text-center">
-          <button 
-            onClick={() => router.push('/register')}
-            className="text-xs text-gray-500 hover:text-gray-300 tracking-[0.1em] uppercase transition-colors"
+          <Link 
+            href="/register"
+            className="text-xs text-gray-500 hover:text-gray-300 tracking-[0.1em] uppercase transition-colors inline-block"
           >
-            Create an Account
-          </button>
+            {t('createAccount')}
+          </Link>
         </div>
       </div>
     </div>

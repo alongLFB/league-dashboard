@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { register, sendVerificationCode } from '@/app/actions/auth';
-import { useRouter } from '@/i18n/routing';
+import { useRouter, Link } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
@@ -20,6 +21,7 @@ export default function RegisterPage() {
   const [sendingCode, setSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const router = useRouter();
+  const t = useTranslations('Register');
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -71,7 +73,7 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-sm px-8 relative z-10">
         <h1 className="text-center text-xs font-black tracking-[0.4em] mb-12 uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">
-          Create Account
+          {t('title')}
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative group">
@@ -81,8 +83,8 @@ export default function RegisterPage() {
               value={formData.username}
               onChange={(e) => setFormData({...formData, username: e.target.value})}
               disabled={loading}
-              placeholder="USERNAME"
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.2em] uppercase text-xs transition-all duration-500 placeholder:text-gray-800 disabled:opacity-50 focus:border-green-500"
+              placeholder={t('username')}
+              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
             />
           </div>
           <div className="relative group">
@@ -92,8 +94,8 @@ export default function RegisterPage() {
               value={formData.nickname}
               onChange={(e) => setFormData({...formData, nickname: e.target.value})}
               disabled={loading}
-              placeholder="NICKNAME"
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.2em] uppercase text-xs transition-all duration-500 placeholder:text-gray-800 disabled:opacity-50 focus:border-green-500"
+              placeholder={t('nickname')}
+              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
             />
           </div>
           <div className="relative group">
@@ -103,8 +105,8 @@ export default function RegisterPage() {
               value={formData.email}
               onChange={(e) => setFormData({...formData, email: e.target.value})}
               disabled={loading}
-              placeholder="EMAIL"
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.2em] uppercase text-xs transition-all duration-500 placeholder:text-gray-800 disabled:opacity-50 focus:border-green-500"
+              placeholder={t('email')}
+              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
             />
           </div>
           
@@ -116,8 +118,8 @@ export default function RegisterPage() {
                 value={formData.code}
                 onChange={(e) => setFormData({...formData, code: e.target.value})}
                 disabled={loading}
-                placeholder="CODE"
-                className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.2em] uppercase text-xs transition-all duration-500 placeholder:text-gray-800 disabled:opacity-50 focus:border-green-500"
+                placeholder={t('code')}
+                className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
               />
             </div>
             <button
@@ -126,7 +128,7 @@ export default function RegisterPage() {
               disabled={sendingCode || countdown > 0 || !formData.email}
               className="px-4 py-2 border border-gray-800 rounded-lg text-xs uppercase tracking-widest text-gray-400 hover:text-green-400 hover:border-green-900 transition-colors disabled:opacity-50"
             >
-              {sendingCode ? <Loader2 size={14} className="animate-spin mx-auto" /> : (countdown > 0 ? `${countdown}s` : 'Send')}
+              {sendingCode ? <Loader2 size={14} className="animate-spin mx-auto" /> : (countdown > 0 ? `${countdown}s` : t('sendCode'))}
             </button>
           </div>
 
@@ -137,8 +139,8 @@ export default function RegisterPage() {
               value={formData.password}
               onChange={(e) => setFormData({...formData, password: e.target.value})}
               disabled={loading}
-              placeholder="PASSWORD"
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.2em] uppercase text-xs transition-all duration-500 placeholder:text-gray-800 disabled:opacity-50 focus:border-green-500"
+              placeholder={t('password')}
+              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
             />
           </div>
           
@@ -147,16 +149,16 @@ export default function RegisterPage() {
             disabled={loading || !formData.username || !formData.password || !formData.code}
             className="w-full flex justify-center py-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-xs tracking-[0.2em] uppercase font-bold disabled:opacity-50"
           >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : 'Register'}
+            {loading ? <Loader2 size={16} className="animate-spin" /> : t('registerBtn')}
           </button>
         </form>
         <div className="mt-8 text-center">
-          <button 
-            onClick={() => router.push('/login')}
-            className="text-xs text-gray-500 hover:text-gray-300 tracking-[0.1em] uppercase transition-colors"
+          <Link 
+            href="/login"
+            className="text-xs text-gray-500 hover:text-gray-300 tracking-[0.1em] uppercase transition-colors inline-block"
           >
-            Back to Login
-          </button>
+            {t('backToLogin')}
+          </Link>
         </div>
       </div>
     </div>
