@@ -14,7 +14,7 @@ export default async function proxy(req: NextRequest) {
     const cookie = req.cookies.get('admin_session')?.value;
     const session = await decryptSession(cookie);
 
-    if (!session?.isAdmin) {
+    if (!session?.username) {
       const match = path.match(/^\/(en|zh)/);
       const localePrefix = match ? match[0] : '';
       return NextResponse.redirect(new URL(`${localePrefix}/login`, req.nextUrl));

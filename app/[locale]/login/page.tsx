@@ -51,7 +51,7 @@ export default function LoginPage() {
               onChange={(e) => setUsername(e.target.value)}
               disabled={loading}
               placeholder={t('usernamePlaceholder')}
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.4em] uppercase text-sm transition-all duration-500 placeholder:text-gray-800 disabled:opacity-50 focus:border-transparent"
+              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
               autoFocus
               spellCheck={false}
               autoComplete="off"
@@ -65,7 +65,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
               placeholder={t('passwordPlaceholder')}
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.4em] uppercase text-sm transition-all duration-500 placeholder:text-gray-800 disabled:opacity-50 focus:border-transparent"
+              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
               spellCheck={false}
               autoComplete="off"
             />
