@@ -36,14 +36,19 @@ cp .env.example .env
 ```
 
 ```env
-# 您的面板登录主密码（随意设定，登录系统时验证）
-ADMIN_SECRET_KEY="my-secret-admin-password"
-
 # [极度危险⚠️] 32字节固定长度的加解密密钥 (务必为32个字符，如丢失会导致全部账号数据永久锁定)
 ENCRYPTION_KEY="0123456789abcdef0123456789abcdef"
 
 # JWT 签名安全密钥
 JWT_SECRET="super-secret-jwt-key"
+
+# 邮件 SMTP 配置 (用于注册时发送验证码)
+SMTP_HOST="smtp.qq.com"
+SMTP_PORT="465"
+SMTP_SECURE="true"
+SMTP_USER="your-email@qq.com"
+SMTP_PASS="your-smtp-auth-code"
+SMTP_FROM="admin@your-domain.com" # (可选) 自定义发件人邮箱，如果不填默认使用 SMTP_USER
 
 # 运行端口配置
 APP_PORT="3000"
@@ -82,7 +87,7 @@ npx prisma db push
 npm run dev
 ```
 
-您将面对一个纯净的输入框界面，输入您在 `.env` 中设定的 `ADMIN_SECRET_KEY` 并按下回车，即可进入控制台开始管理您的账号。
+您将进入系统页面，首先需要点击“Create an Account”注册一个您的账户（注册时需收取邮件验证码），注册登录后即可进入控制台开始管理和分享您的账号。
 
 ## 📖 相关页面
 

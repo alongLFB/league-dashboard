@@ -36,14 +36,19 @@ cp .env.example .env
 ```
 
 ```env
-# Your master password for logging into the dashboard (set randomly, verified on login)
-ADMIN_SECRET_KEY="my-secret-admin-password"
-
 # [EXTREMELY DANGEROUS ⚠️] 32-byte fixed-length encryption/decryption key (Must be exactly 32 characters; losing this permanently locks all account data)
 ENCRYPTION_KEY="0123456789abcdef0123456789abcdef"
 
 # JWT signing secret key
 JWT_SECRET="super-secret-jwt-key"
+
+# Email SMTP Configuration (used for sending verification codes during registration)
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_SECURE="true"
+SMTP_USER="your-email@gmail.com"
+SMTP_PASS="your-smtp-app-password"
+SMTP_FROM="admin@your-domain.com" # (Optional) Custom sender email, defaults to SMTP_USER if empty
 
 # Port Configuration
 APP_PORT="3000"
@@ -82,7 +87,7 @@ npx prisma db push
 npm run dev
 ```
 
-You will be greeted by a pure input interface. Enter the `ADMIN_SECRET_KEY` you set in `.env` and press Enter to access the dashboard and manage your accounts.
+You will be greeted by the system interface. First, you need to click "Create an Account" to register (an email verification code is required). After registering and logging in, you can access the dashboard to manage and share your accounts.
 
 ## 📖 Related Pages
 

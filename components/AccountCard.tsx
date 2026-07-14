@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Copy, Eye, EyeOff, Trash2, Globe, Tag, UserCircle, User, Lock, Pencil, X, Loader2, ChevronDown, AlertTriangle, Share2 } from 'lucide-react';
+import { Check, Copy, Eye, EyeOff, Trash2, Globe, Tag, UserCircle, User, Lock, Pencil, X, Loader2, ChevronDown, AlertTriangle, Share2, ShieldCheck } from 'lucide-react';
 import { deleteAccount, updateAccount } from '@/app/actions/accounts';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { ShareModal } from './ShareModal';
 
 const REGIONS = [
   { value: 'NA', label: 'North America' },
@@ -33,9 +34,11 @@ interface AccountCardProps {
   summonerId: string;
   username: string;
   password?: string;
+  isOwner?: boolean;
+  ownerNickname?: string;
 }
 
-export function AccountCard({ id, region, alias, summonerId, username, password }: AccountCardProps) {
+export function AccountCard({ id, region, alias, summonerId, username, password, isOwner = true, ownerNickname }: AccountCardProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   
@@ -57,17 +60,14 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
     region, alias, summonerId, username, password: password || ''
   });
 
+  // Share State
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
   const handleCopy = async (text: string, field: string) => {
     if (!text) return;
     await navigator.clipboard.writeText(text);
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 1500);
-  };
-
-  const handleShare = async () => {
-    const text = tCard('shareText', { region, summonerId, username, password: password || '' });
-    await navigator.clipboard.writeText(text);
-    toast.success(tToast('copied'));
   };
 
   const handleDeleteConfirm = async () => {
@@ -114,29 +114,36 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
                 </span>
               </div>
               
-              <div className="flex items-center gap-0.5 opacity-100 lg:opacity-0 transition-opacity group-hover:opacity-100 shrink-0 -mt-2 -mr-2">
-                <button 
-                  onClick={handleShare}
-                  className="p-2.5 rounded-full text-gray-500 hover:text-green-400 hover:bg-green-400/10 focus:outline-none transition-all"
-                  title="Share"
-                >
-                  <Share2 size={16} />
-                </button>
-                <button 
-                  onClick={openEdit}
-                  className="p-2.5 rounded-full text-gray-500 hover:text-blue-400 hover:bg-blue-400/10 focus:outline-none transition-all"
-                  title={tForm('editAccount')}
-                >
-                  <Pencil size={16} />
-                </button>
-                <button 
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="p-2.5 rounded-full text-gray-500 hover:text-red-400 hover:bg-red-400/10 focus:outline-none transition-all"
-                  title={tForm('deleteTitle')}
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
+              {isOwner ? (
+                <div className="flex items-center gap-0.5 opacity-100 lg:opacity-0 transition-opacity group-hover:opacity-100 shrink-0 -mt-2 -mr-2">
+                  <button 
+                    onClick={() => setIsShareModalOpen(true)}
+                    className="p-2.5 rounded-full text-gray-500 hover:text-green-400 hover:bg-green-400/10 focus:outline-none transition-all"
+                    title="Share"
+                  >
+                    <Share2 size={16} />
+                  </button>
+                  <button 
+                    onClick={openEdit}
+                    className="p-2.5 rounded-full text-gray-500 hover:text-blue-400 hover:bg-blue-400/10 focus:outline-none transition-all"
+                    title={tForm('editAccount')}
+                  >
+                    <Pencil size={16} />
+                  </button>
+                  <button 
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="p-2.5 rounded-full text-gray-500 hover:text-red-400 hover:bg-red-400/10 focus:outline-none transition-all"
+                    title={tForm('deleteTitle')}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ) : (
+                <div className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-full inline-flex items-center gap-1.5 shrink-0">
+                  <ShieldCheck size={12} className="text-green-400" />
+                  <span className="text-[10px] text-green-300 font-bold">Shared by {ownerNickname}</span>
+                </div>
+              )}
             </div>
 
             <div className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-100 to-gray-400 flex items-center gap-2">
@@ -203,6 +210,13 @@ export function AccountCard({ id, region, alias, summonerId, username, password 
           </div>
         </div>
       </div>
+
+      {isShareModalOpen && (
+        <ShareModal 
+          accountId={id}
+          onClose={() => setIsShareModalOpen(false)}
+        />
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
