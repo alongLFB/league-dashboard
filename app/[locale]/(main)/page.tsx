@@ -1,5 +1,5 @@
 import { getAccounts } from '@/app/actions/accounts';
-import { AccountCard } from '@/components/AccountCard';
+import { AccountListClient } from '@/components/AccountListClient';
 import { AddAccountForm } from '@/components/AddAccountForm';
 import { logout } from '@/app/actions/auth';
 import { LogOut } from 'lucide-react';
@@ -27,11 +27,7 @@ export default async function DashboardPage() {
             <p className="text-gray-500 text-xs tracking-widest uppercase font-medium relative z-10">{t('noAccounts')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {accounts.map(account => (
-              <AccountCard key={account.id} {...account} />
-            ))}
-          </div>
+          <AccountListClient accounts={accounts} />
         )}
       </main>
   );

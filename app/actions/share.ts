@@ -82,3 +82,102 @@ export async function shareAccount(accountId: string, targetUserId: string) {
     return { success: false, error: 'Failed to share account' };
   }
 }
+
+export async function getAccountShares(accountId: string) {
+  const userId = await requireAuth();
+  
+  // Verify ownership
+  const account = await prisma.account.findUnique({ where: { id: accountId } });
+  if (!account || account.ownerId !== userId) {
+    return { success: false, error: 'Unauthorized or account not found' };
+  }
+  
+  const shares = await prisma.sharedAccount.findMany({
+    where: { accountId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          nickname: true,
+          email: true,
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+  
+  const formattedShares = shares.map(share => ({
+    id: share.id,
+    userId: share.user.id,
+    nickname: share.user.nickname,
+    displayInfo: share.user.email.replace(/(.{2})(.*)(?=@)/,
+      (gp1, gp2, gp3) => { 
+        let mask = "";
+        for(let i=0; i<gp3.length; i++) mask += "*";
+        return gp2 + mask;
+      }
+    ),
+    createdAt: share.createdAt
+  }));
+  
+  return { success: true, shares: formattedShares };
+}
+
+export async function revokeShare(accountId: string, targetUserId: string) {
+  const userId = await requireAuth();
+  
+  // Verify ownership
+  const account = await prisma.account.findUnique({ where: { id: accountId } });
+  if (!account || account.ownerId !== userId) {
+    return { success: false, error: 'Unauthorized or account not found' };
+  }
+  
+  try {
+    await prisma.sharedAccount.delete({
+      where: {
+        accountId_userId: {
+          accountId,
+          userId: targetUserId
+        }
+      }
+    });
+    
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: 'Failed to revoke share' };
+  }
+}
+
+export async function batchShareAccounts(accountIds: string[], targetUserId: string) {
+  const userId = await requireAuth();
+  
+  // Verify ownership for all accounts
+  const accounts = await prisma.account.findMany({ 
+    where: { 
+      id: { in: accountIds },
+      ownerId: userId
+    } 
+  });
+  
+  if (accounts.length !== accountIds.length) {
+    return { success: false, error: 'Some accounts not found or unauthorized' };
+  }
+  
+  try {
+    await prisma.sharedAccount.createMany({
+      data: accountIds.map(accountId => ({
+        accountId,
+        userId: targetUserId
+      })),
+      skipDuplicates: true
+    });
+    
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: 'Failed to batch share accounts' };
+  }
+}

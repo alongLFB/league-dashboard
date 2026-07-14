@@ -36,9 +36,15 @@ interface AccountCardProps {
   password?: string;
   isOwner?: boolean;
   ownerNickname?: string;
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
 }
 
-export function AccountCard({ id, region, alias, summonerId, username, password, isOwner = true, ownerNickname }: AccountCardProps) {
+export function AccountCard({ 
+  id, region, alias, summonerId, username, password, isOwner = true, ownerNickname,
+  isSelectionMode = false, isSelected = false, onToggleSelect
+}: AccountCardProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   
@@ -101,11 +107,32 @@ export function AccountCard({ id, region, alias, summonerId, username, password,
 
   return (
     <>
-      <div className="group relative">
-        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 rounded-2xl blur-md opacity-20 group-hover:opacity-40 transition duration-1000 animate-pulse pointer-events-none" />
+      <div className={cn("group relative", isSelectionMode && "cursor-pointer")} onClick={() => {
+        if (isSelectionMode && onToggleSelect) onToggleSelect();
+      }}>
+        <div className={cn(
+          "absolute -inset-1 rounded-2xl blur-md transition duration-1000 animate-pulse pointer-events-none",
+          isSelected 
+            ? "bg-gradient-to-r from-blue-600 to-purple-600 opacity-60" 
+            : "bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 opacity-20 group-hover:opacity-40"
+        )} />
         
-        <div className="relative rounded-2xl border border-gray-800 bg-[#0d1117] p-6 shadow-2xl h-full flex flex-col">
-          <div className="flex flex-col gap-3 mb-6 relative">
+        <div className={cn(
+          "relative rounded-2xl border bg-[#0d1117] p-6 shadow-2xl h-full flex flex-col transition-colors",
+          isSelected ? "border-blue-500/50" : "border-gray-800"
+        )}>
+          {isSelectionMode && (
+            <div className="absolute top-4 left-4 z-10">
+              <div className={cn(
+                "w-5 h-5 rounded-md border flex items-center justify-center transition-all",
+                isSelected ? "bg-blue-600 border-blue-500" : "bg-gray-900 border-gray-700 group-hover:border-gray-500"
+              )}>
+                {isSelected && <Check size={12} className="text-white" />}
+              </div>
+            </div>
+          )}
+          
+          <div className={cn("flex flex-col gap-3 mb-6 relative", isSelectionMode ? "pl-8" : "")}>
             <div className="flex justify-between items-start">
               <div className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full inline-flex items-center gap-1.5">
                 <Globe size={10} className="text-blue-400" />
@@ -213,7 +240,7 @@ export function AccountCard({ id, region, alias, summonerId, username, password,
 
       {isShareModalOpen && (
         <ShareModal 
-          accountId={id}
+          accountIds={[id]}
           onClose={() => setIsShareModalOpen(false)}
         />
       )}
