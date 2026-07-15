@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Search, Loader2, Share2, UserCheck, Users, ShieldMinus } from 'lucide-react';
-import { searchUserForShare, shareAccount, getAccountShares, revokeShare, batchShareAccounts } from '@/app/actions/share';
+import { searchUserForShare, shareAccount, getAccountShares, revokeShare, batchShareAccounts, getBatchAccountShares, batchRevokeShareForUser } from '@/app/actions/share';
 import { toast } from 'sonner';
 
 interface ShareModalProps {
@@ -26,14 +26,16 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
   const [revokingId, setRevokingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isBatch && activeTab === 'manage') {
+    if (activeTab === 'manage') {
       loadShares();
     }
-  }, [activeTab, isBatch]);
+  }, [activeTab]);
 
   const loadShares = async () => {
     setLoadingShares(true);
-    const res = await getAccountShares(accountIds[0]);
+    const res = isBatch 
+      ? await getBatchAccountShares(accountIds)
+      : await getAccountShares(accountIds[0]);
     if (res.success && res.shares) {
       setSharedUsers(res.shares);
     }
@@ -82,11 +84,13 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
 
   const handleRevoke = async (targetUserId: string) => {
     setRevokingId(targetUserId);
-    const res = await revokeShare(accountIds[0], targetUserId);
+    const res = isBatch
+      ? await batchRevokeShareForUser(accountIds, targetUserId)
+      : await revokeShare(accountIds[0], targetUserId);
     setRevokingId(null);
     
     if (res.success) {
-      toast.success('Share revoked successfully');
+      toast.success(isBatch ? 'Shares revoked for this user' : 'Share revoked successfully');
       setSharedUsers(prev => prev.filter(u => u.userId !== targetUserId));
     } else {
       toast.error(res.error || 'Failed to revoke share');
@@ -113,22 +117,20 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
             {isBatch ? 'Share selected accounts with another user.' : 'Share this account or manage existing shares.'}
           </p>
           
-          {!isBatch && (
-            <div className="flex bg-gray-900/50 p-1 rounded-xl mb-6">
-              <button
-                onClick={() => setActiveTab('share')}
-                className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'share' ? 'bg-blue-600/20 text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
-              >
-                Share
-              </button>
-              <button
-                onClick={() => setActiveTab('manage')}
-                className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'manage' ? 'bg-blue-600/20 text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
-              >
-                Manage
-              </button>
-            </div>
-          )}
+          <div className="flex bg-gray-900/50 p-1 rounded-xl mb-6">
+            <button
+              onClick={() => setActiveTab('share')}
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'share' ? 'bg-blue-600/20 text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+            >
+              Share
+            </button>
+            <button
+              onClick={() => setActiveTab('manage')}
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'manage' ? 'bg-blue-600/20 text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+            >
+              Manage
+            </button>
+          </div>
           
           <div className="overflow-y-auto flex-1 pr-2 -mr-2 scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent">
             {activeTab === 'share' ? (

@@ -182,7 +182,7 @@ export async function batchShareAccounts(accountIds: string[], targetUserId: str
   }
 }
 
-export async function batchRevokeAllShares(accountIds: string[]) {
+export async function getBatchAccountShares(accountIds: string[]) {
   const userId = await requireAuth();
   
   // Verify ownership for all accounts
@@ -197,13 +197,67 @@ export async function batchRevokeAllShares(accountIds: string[]) {
     return { success: false, error: 'No authorized accounts found' };
   }
 
-  // Only revoke shares for accounts they own
+  const authorizedAccountIds = accounts.map(a => a.id);
+  
+  const shares = await prisma.sharedAccount.findMany({
+    where: { accountId: { in: authorizedAccountIds } },
+    include: {
+      user: {
+        select: {
+          id: true,
+          nickname: true,
+          email: true,
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+  
+  // Deduplicate users
+  const userMap = new Map();
+  for (const share of shares) {
+    if (!userMap.has(share.userId)) {
+      userMap.set(share.userId, share.user);
+    }
+  }
+  
+  const formattedShares = Array.from(userMap.values()).map(user => ({
+    userId: user.id,
+    nickname: user.nickname,
+    displayInfo: user.email.replace(/(.{2})(.*)(?=@)/,
+      (gp1, gp2, gp3) => { 
+        let mask = "";
+        for(let i=0; i<gp3.length; i++) mask += "*";
+        return gp2 + mask;
+      }
+    )
+  }));
+  
+  return { success: true, shares: formattedShares };
+}
+
+export async function batchRevokeShareForUser(accountIds: string[], targetUserId: string) {
+  const userId = await requireAuth();
+  
+  // Verify ownership
+  const accounts = await prisma.account.findMany({ 
+    where: { 
+      id: { in: accountIds },
+      ownerId: userId
+    } 
+  });
+  
+  if (accounts.length === 0) {
+    return { success: false, error: 'No authorized accounts found' };
+  }
+  
   const authorizedAccountIds = accounts.map(a => a.id);
   
   try {
     await prisma.sharedAccount.deleteMany({
       where: {
-        accountId: { in: authorizedAccountIds }
+        accountId: { in: authorizedAccountIds },
+        userId: targetUserId
       }
     });
     
@@ -211,6 +265,7 @@ export async function batchRevokeAllShares(accountIds: string[]) {
     return { success: true };
   } catch (error) {
     console.error(error);
-    return { success: false, error: 'Failed to batch revoke shares' };
+    return { success: false, error: 'Failed to batch revoke shares for user' };
   }
 }
+

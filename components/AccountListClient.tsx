@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { AccountCard } from './AccountCard';
 import { ShareModal } from './ShareModal';
 import { Share2, X, CheckSquare, CheckSquare2, ShieldMinus, Loader2 } from 'lucide-react';
-import { batchRevokeAllShares } from '@/app/actions/share';
 import { toast } from 'sonner';
 
 interface AccountListClientProps {
@@ -15,7 +14,6 @@ export function AccountListClient({ accounts }: AccountListClientProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [isRevoking, setIsRevoking] = useState(false);
 
   const toggleSelect = (id: string) => {
     const newSelected = new Set(selectedIds);
@@ -40,18 +38,6 @@ export function AccountListClient({ accounts }: AccountListClientProps) {
     }
   };
 
-  const handleBatchRevoke = async () => {
-    if (selectedIds.size === 0) return;
-    setIsRevoking(true);
-    const res = await batchRevokeAllShares(Array.from(selectedIds));
-    setIsRevoking(false);
-    if (res.success) {
-      toast.success(`Revoked all shares for ${selectedIds.size} accounts`);
-      cancelSelection();
-    } else {
-      toast.error(res.error || 'Failed to batch revoke shares');
-    }
-  };
 
   return (
     <>
@@ -104,21 +90,11 @@ export function AccountListClient({ accounts }: AccountListClientProps) {
                   setIsShareModalOpen(true);
                 }
               }}
-              disabled={selectedIds.size === 0 || isRevoking}
+              disabled={selectedIds.size === 0}
               className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-500 hover:to-green-400 disabled:opacity-50 disabled:grayscale text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all"
             >
               <Share2 size={16} />
-              Batch Share
-            </button>
-            
-            <button
-              onClick={handleBatchRevoke}
-              disabled={selectedIds.size === 0 || isRevoking}
-              className="flex items-center gap-2 px-6 py-2.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 text-red-400 hover:text-red-300 rounded-xl text-xs font-bold uppercase tracking-widest transition-all"
-              title="Revoke all shares for selected accounts"
-            >
-              {isRevoking ? <Loader2 size={16} className="animate-spin" /> : <ShieldMinus size={16} />}
-              Revoke Share
+              Share / Manage
             </button>
             
             <button
