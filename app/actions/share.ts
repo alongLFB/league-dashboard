@@ -225,7 +225,7 @@ export async function getBatchAccountShares(accountIds: string[]) {
     userId: user.id,
     nickname: user.nickname,
     displayInfo: user.email.replace(/(.{2})(.*)(?=@)/,
-      (gp1, gp2, gp3) => { 
+      (gp1: string, gp2: string, gp3: string) => { 
         let mask = "";
         for(let i=0; i<gp3.length; i++) mask += "*";
         return gp2 + mask;
