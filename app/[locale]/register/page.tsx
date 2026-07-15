@@ -6,7 +6,7 @@ import { useRouter, Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -17,6 +17,7 @@ export default function RegisterPage() {
     code: ''
   });
   
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -78,28 +79,6 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative group">
             <input
-              type="text"
-              required
-              value={formData.username}
-              onChange={(e) => setFormData({...formData, username: e.target.value})}
-              disabled={loading}
-              placeholder={t('username')}
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
-            />
-          </div>
-          <div className="relative group">
-            <input
-              type="text"
-              required
-              value={formData.nickname}
-              onChange={(e) => setFormData({...formData, nickname: e.target.value})}
-              disabled={loading}
-              placeholder={t('nickname')}
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
-            />
-          </div>
-          <div className="relative group">
-            <input
               type="email"
               required
               value={formData.email}
@@ -134,7 +113,31 @@ export default function RegisterPage() {
 
           <div className="relative group">
             <input
-              type="password"
+              type="text"
+              required
+              value={formData.nickname}
+              onChange={(e) => setFormData({...formData, nickname: e.target.value})}
+              disabled={loading}
+              placeholder={t('nickname')}
+              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
+            />
+          </div>
+
+          <div className="relative group">
+            <input
+              type="text"
+              required
+              value={formData.username}
+              onChange={(e) => setFormData({...formData, username: e.target.value})}
+              disabled={loading}
+              placeholder={t('username')}
+              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
+            />
+          </div>
+
+          <div className="relative group">
+            <input
+              type={showPassword ? 'text' : 'password'}
               required
               value={formData.password}
               onChange={(e) => setFormData({...formData, password: e.target.value})}
@@ -142,6 +145,13 @@ export default function RegisterPage() {
               placeholder={t('password')}
               className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-2 top-0 text-gray-500 hover:text-green-400 transition-colors"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
           
           <button 

@@ -6,11 +6,12 @@ import { useRouter, Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const t = useTranslations('Login');
@@ -60,7 +61,7 @@ export default function LoginPage() {
           <div className="relative group">
             <div className={`absolute -bottom-0.5 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-700 ease-out ${password ? 'w-full' : 'w-0 group-focus-within:w-full'}`} />
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
@@ -69,6 +70,13 @@ export default function LoginPage() {
               spellCheck={false}
               autoComplete="off"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-2 top-0 text-gray-500 hover:text-purple-400 transition-colors"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
           <button 
             type="submit" 
