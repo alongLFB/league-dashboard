@@ -22,6 +22,26 @@
     "revokeThisAccount": "撤销此账号的分享",
     "revokeAllShares": "撤销所有分享"
   },
+  "Profile": {
+    "title": "个人设置",
+    "profileInfo": "基本信息",
+    "username": "登录账号",
+    "nickname": "显示昵称",
+    "updateNickname": "更新昵称",
+    "security": "安全设置",
+    "currentPassword": "当前密码",
+    "newPassword": "新密码",
+    "updatePassword": "更新密码",
+    "emailBinding": "邮箱绑定",
+    "currentEmail": "当前邮箱",
+    "newEmail": "新邮箱",
+    "verificationCode": "验证码",
+    "sendCode": "发送验证码",
+    "updateEmail": "更新邮箱",
+    "updateSuccess": "更新成功",
+    "updateFailed": "更新失败",
+    "logout": "退出登录"
+  },
   "Login": {
     "title": "Taste / League",
     "usernamePlaceholder": "输入账号或邮箱",

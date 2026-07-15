@@ -20,10 +20,10 @@ export async function Header() {
         </Link>
         <div className="flex items-center gap-6">
           {(session?.nickname as string) && (
-            <div className="flex items-center gap-2 text-gray-400 text-xs font-bold tracking-wider">
-              <User size={14} className="text-blue-400" />
+            <Link href="/profile" className="flex items-center gap-2 text-gray-400 hover:text-gray-200 text-xs font-bold tracking-wider transition-colors group">
+              <User size={14} className="text-blue-400 group-hover:text-blue-300 transition-colors" />
               {session?.nickname as string}
-            </div>
+            </Link>
           )}
           <LanguageSwitcher />
           <form action={logout}>

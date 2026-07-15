@@ -22,6 +22,26 @@
     "revokeThisAccount": "Revoke this account",
     "revokeAllShares": "Revoke All Shares"
   },
+  "Profile": {
+    "title": "Profile Settings",
+    "profileInfo": "Profile Information",
+    "username": "Username",
+    "nickname": "Nickname",
+    "updateNickname": "Update Nickname",
+    "security": "Security",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "updatePassword": "Update Password",
+    "emailBinding": "Email Binding",
+    "currentEmail": "Current Email",
+    "newEmail": "New Email",
+    "verificationCode": "Verification Code",
+    "sendCode": "Send Code",
+    "updateEmail": "Update Email",
+    "updateSuccess": "Update successful",
+    "updateFailed": "Update failed",
+    "logout": "Log out"
+  },
   "Login": {
     "title": "Taste / League",
     "usernamePlaceholder": "USERNAME OR EMAIL",
