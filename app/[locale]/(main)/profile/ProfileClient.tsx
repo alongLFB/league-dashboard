@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { updateNickname, updateEmail, updatePassword } from '@/app/actions/user';
-import { sendVerificationCode } from '@/app/actions/auth';
+import { sendVerificationCode, sendPasswordResetCode, resetPasswordWithCode } from '@/app/actions/auth';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Loader2, Mail, Lock, User as UserIcon, ShieldCheck } from 'lucide-react';
@@ -26,6 +26,12 @@ export function ProfileClient({ user }: ProfileClientProps) {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [savingPassword, setSavingPassword] = useState(false);
+  
+  // Password Reset via Email State
+  const [passwordMode, setPasswordMode] = useState<'current' | 'email'>('current');
+  const [resetCode, setResetCode] = useState('');
+  const [sendingResetCode, setSendingResetCode] = useState(false);
+  const [resetCountdown, setResetCountdown] = useState(0);
 
   // Email State
   const [newEmail, setNewEmail] = useState('');
@@ -61,6 +67,46 @@ export function ProfileClient({ user }: ProfileClientProps) {
       toast.success(t('updateSuccess'));
       setCurrentPassword('');
       setNewPassword('');
+    } else {
+      toast.error(res.error || t('updateFailed'));
+    }
+  };
+
+  const handleSendResetCode = async () => {
+    setSendingResetCode(true);
+    const res = await sendPasswordResetCode(user.email);
+    setSendingResetCode(false);
+    
+    if (res.success) {
+      toast.success('Code sent to your email');
+      setResetCountdown(60);
+      const timer = setInterval(() => {
+        setResetCountdown((c) => {
+          if (c <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return c - 1;
+        });
+      }, 1000);
+    } else {
+      toast.error(res.error || 'Failed to send code');
+    }
+  };
+
+  const handleResetPasswordWithEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetCode || !newPassword) return;
+    
+    setSavingPassword(true);
+    const res = await resetPasswordWithCode(user.email, resetCode, newPassword);
+    setSavingPassword(false);
+    
+    if (res.success) {
+      toast.success(t('updateSuccess'));
+      setResetCode('');
+      setNewPassword('');
+      setPasswordMode('current');
     } else {
       toast.error(res.error || t('updateFailed'));
     }
@@ -221,44 +267,105 @@ export function ProfileClient({ user }: ProfileClientProps) {
       {/* Password Section */}
       <div className="bg-[#0d1117]/80 backdrop-blur-md border border-gray-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500/50 to-orange-500/50" />
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-            <Lock size={18} className="text-red-400" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+              <Lock size={18} className="text-red-400" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-200">{t('security')}</h3>
           </div>
-          <h3 className="text-lg font-bold text-gray-200">{t('security')}</h3>
+          <div className="flex bg-gray-900/50 rounded-lg p-1 border border-gray-800">
+            <button
+              onClick={() => setPasswordMode('current')}
+              className={`px-3 py-1.5 text-xs font-bold uppercase tracking-widest rounded-md transition-colors ${passwordMode === 'current' ? 'bg-red-500/20 text-red-400' : 'text-gray-500 hover:text-gray-300'}`}
+            >
+              {t('updateWithCurrent')}
+            </button>
+            <button
+              onClick={() => setPasswordMode('email')}
+              className={`px-3 py-1.5 text-xs font-bold uppercase tracking-widest rounded-md transition-colors ${passwordMode === 'email' ? 'bg-red-500/20 text-red-400' : 'text-gray-500 hover:text-gray-300'}`}
+            >
+              {t('resetViaEmail')}
+            </button>
+          </div>
         </div>
         
-        <form onSubmit={handleUpdatePassword} className="space-y-4">
-          <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-widest mb-2">{t('currentPassword')}</label>
-            <input 
-              type="password" 
-              value={currentPassword}
-              onChange={e => setCurrentPassword(e.target.value)}
-              required
-              className="w-full bg-gray-900/80 border border-gray-800 rounded-lg p-3 text-sm text-gray-200 outline-none focus:border-red-500 transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-widest mb-2">{t('newPassword')}</label>
-            <div className="flex gap-4">
+        {passwordMode === 'current' ? (
+          <form onSubmit={handleUpdatePassword} className="space-y-4">
+            <div>
+              <label className="block text-xs text-gray-500 uppercase tracking-widest mb-2">{t('currentPassword')}</label>
               <input 
                 type="password" 
-                value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
+                value={currentPassword}
+                onChange={e => setCurrentPassword(e.target.value)}
                 required
-                className="flex-1 bg-gray-900/80 border border-gray-800 rounded-lg p-3 text-sm text-gray-200 outline-none focus:border-red-500 transition-colors"
+                className="w-full bg-gray-900/80 border border-gray-800 rounded-lg p-3 text-sm text-gray-200 outline-none focus:border-red-500 transition-colors"
               />
-              <button 
-                type="submit"
-                disabled={savingPassword || !currentPassword || !newPassword}
-                className="px-6 py-2 bg-red-600/20 text-red-400 hover:bg-red-600/40 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors disabled:opacity-50 min-w-[120px] flex items-center justify-center"
-              >
-                {savingPassword ? <Loader2 size={14} className="animate-spin" /> : t('updatePassword')}
-              </button>
             </div>
-          </div>
-        </form>
+            <div>
+              <label className="block text-xs text-gray-500 uppercase tracking-widest mb-2">{t('newPassword')}</label>
+              <div className="flex gap-4">
+                <input 
+                  type="password" 
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  required
+                  className="flex-1 bg-gray-900/80 border border-gray-800 rounded-lg p-3 text-sm text-gray-200 outline-none focus:border-red-500 transition-colors"
+                />
+                <button 
+                  type="submit"
+                  disabled={savingPassword || !currentPassword || !newPassword}
+                  className="px-6 py-2 bg-red-600/20 text-red-400 hover:bg-red-600/40 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors disabled:opacity-50 min-w-[120px] flex items-center justify-center"
+                >
+                  {savingPassword ? <Loader2 size={14} className="animate-spin" /> : t('updatePassword')}
+                </button>
+              </div>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleResetPasswordWithEmail} className="space-y-4">
+            <div>
+              <label className="block text-xs text-gray-500 uppercase tracking-widest mb-2">{t('verificationCode')}</label>
+              <div className="flex gap-4">
+                <input 
+                  type="text" 
+                  value={resetCode}
+                  onChange={e => setResetCode(e.target.value)}
+                  required
+                  placeholder="123456"
+                  className="flex-1 bg-gray-900/80 border border-gray-800 rounded-lg p-3 text-sm text-gray-200 outline-none focus:border-red-500 transition-colors tracking-widest"
+                />
+                <button 
+                  type="button"
+                  onClick={handleSendResetCode}
+                  disabled={sendingResetCode || resetCountdown > 0}
+                  className="px-6 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors disabled:opacity-50 min-w-[120px] flex items-center justify-center"
+                >
+                  {sendingResetCode ? <Loader2 size={14} className="animate-spin" /> : resetCountdown > 0 ? `${resetCountdown}s` : t('sendCode')}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 uppercase tracking-widest mb-2">{t('newPassword')}</label>
+              <div className="flex gap-4">
+                <input 
+                  type="password" 
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  required
+                  className="flex-1 bg-gray-900/80 border border-gray-800 rounded-lg p-3 text-sm text-gray-200 outline-none focus:border-red-500 transition-colors"
+                />
+                <button 
+                  type="submit"
+                  disabled={savingPassword || !resetCode || !newPassword}
+                  className="px-6 py-2 bg-red-600/20 text-red-400 hover:bg-red-600/40 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors disabled:opacity-50 min-w-[120px] flex items-center justify-center"
+                >
+                  {savingPassword ? <Loader2 size={14} className="animate-spin" /> : t('updatePassword')}
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
       </div>
 
     </div>

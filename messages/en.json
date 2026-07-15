@@ -40,6 +40,8 @@
     "updateEmail": "Update Email",
     "updateSuccess": "Update successful",
     "updateFailed": "Update failed",
+    "resetViaEmail": "Reset via Email",
+    "updateWithCurrent": "Update with Password",
     "logout": "Log out"
   },
   "Login": {
@@ -48,7 +50,14 @@
     "passwordPlaceholder": "PASSWORD",
     "loginBtn": "Login",
     "noAccount": "Don't have an account?",
-    "createAccount": "Create an Account"
+    "createAccount": "Create an Account",
+    "forgotPassword": "Forgot Password?",
+    "resetPasswordTitle": "Reset Password",
+    "resetBtn": "Reset Password",
+    "backToLogin": "Back to Login",
+    "emailPlaceholder": "EMAIL",
+    "codePlaceholder": "VERIFICATION CODE",
+    "sendCode": "Send"
   },
   "Register": {
     "title": "Create Account",

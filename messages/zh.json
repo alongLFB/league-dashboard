@@ -40,6 +40,8 @@
     "updateEmail": "更新邮箱",
     "updateSuccess": "更新成功",
     "updateFailed": "更新失败",
+    "resetViaEmail": "通过邮箱重置",
+    "updateWithCurrent": "使用当前密码更新",
     "logout": "退出登录"
   },
   "Login": {
@@ -48,7 +50,14 @@
     "passwordPlaceholder": "输入密码",
     "loginBtn": "登录",
     "noAccount": "还没有账号？",
-    "createAccount": "创建账号"
+    "createAccount": "创建账号",
+    "forgotPassword": "忘记密码？",
+    "resetPasswordTitle": "重置密码",
+    "resetBtn": "重置密码",
+    "backToLogin": "返回登录",
+    "emailPlaceholder": "邮箱地址",
+    "codePlaceholder": "验证码",
+    "sendCode": "发送"
   },
   "Register": {
     "title": "创建账号",

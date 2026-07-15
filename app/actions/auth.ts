@@ -130,3 +130,79 @@ export async function register(data: any) {
 
   return { success: true };
 }
+
+export async function sendPasswordResetCode(email: string) {
+  // Check if user exists
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (!existing) {
+    return { success: false, error: 'User not found with this email' };
+  }
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit code
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+  await prisma.verificationCode.create({
+    data: { email, code, expiresAt },
+  });
+
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER || '',
+      pass: process.env.SMTP_PASS || '',
+    },
+  });
+
+  try {
+    await transporter.sendMail({
+      from: `"League Dashboard" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      to: email,
+      subject: 'Password Reset Verification Code',
+      text: `Your password reset verification code is: ${code}. It is valid for 10 minutes.`,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send email:', error);
+    return { success: false, error: 'Failed to send verification code email' };
+  }
+}
+
+export async function resetPasswordWithCode(email: string, code: string, newPassword: string) {
+  // Verify code
+  const validCode = await prisma.verificationCode.findFirst({
+    where: {
+      email,
+      code,
+      expiresAt: { gt: new Date() },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  if (!validCode) {
+    return { success: false, error: 'Invalid or expired verification code' };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    return { success: false, error: 'User not found' };
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+
+  try {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash }
+    });
+
+    // Invalidate the code
+    await prisma.verificationCode.delete({ where: { id: validCode.id } });
+
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: 'Failed to reset password' };
+  }
+}
