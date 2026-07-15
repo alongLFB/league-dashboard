@@ -8,7 +8,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-gradient-to-b from-blue-900/20 to-purple-900/10 blur-[100px] rounded-full pointer-events-none" />
       
       <Header />
-      <div className="flex-1 pb-20 relative z-10">
+      <div className="flex-1 pb-20 relative z-20">
         {children}
       </div>
       <Footer />

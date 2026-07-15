@@ -181,3 +181,36 @@ export async function batchShareAccounts(accountIds: string[], targetUserId: str
     return { success: false, error: 'Failed to batch share accounts' };
   }
 }
+
+export async function batchRevokeAllShares(accountIds: string[]) {
+  const userId = await requireAuth();
+  
+  // Verify ownership for all accounts
+  const accounts = await prisma.account.findMany({ 
+    where: { 
+      id: { in: accountIds },
+      ownerId: userId
+    } 
+  });
+  
+  if (accounts.length === 0) {
+    return { success: false, error: 'No authorized accounts found' };
+  }
+
+  // Only revoke shares for accounts they own
+  const authorizedAccountIds = accounts.map(a => a.id);
+  
+  try {
+    await prisma.sharedAccount.deleteMany({
+      where: {
+        accountId: { in: authorizedAccountIds }
+      }
+    });
+    
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: 'Failed to batch revoke shares' };
+  }
+}
