@@ -5,7 +5,22 @@
     "searchPlaceholder": "Search Account...",
     "addAccount": "Add New",
     "accountsTitle": "Accounts",
-    "noAccounts": "No accounts found"
+    "noAccounts": "No accounts found",
+    "manageShares": "Manage Shares"
+  },
+  "Share": {
+    "loadFailed": "Failed to load shared users",
+    "revokeSuccess": "Share revoked successfully",
+    "revokeFailed": "Failed to revoke share",
+    "revokeAllConfirm": "Are you sure you want to revoke all shares for this user?",
+    "revokeAllSuccess": "All shares revoked for user",
+    "manageSharesTitle": "Manage Shared Users",
+    "manageSharesDesc": "View and manage all users you have shared accounts with.",
+    "noSharedUsers": "You haven't shared any accounts yet.",
+    "account": "Account",
+    "accounts": "Accounts",
+    "revokeThisAccount": "Revoke this account",
+    "revokeAllShares": "Revoke All Shares"
   },
   "Login": {
     "title": "Taste / League",

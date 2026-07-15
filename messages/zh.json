@@ -5,7 +5,22 @@
     "searchPlaceholder": "搜索账号...",
     "addAccount": "添加账号",
     "accountsTitle": "账号列表",
-    "noAccounts": "暂无账号数据"
+    "noAccounts": "暂无账号数据",
+    "manageShares": "管理分享"
+  },
+  "Share": {
+    "loadFailed": "加载分享用户失败",
+    "revokeSuccess": "已成功撤销分享",
+    "revokeFailed": "撤销分享失败",
+    "revokeAllConfirm": "您确定要撤销对该用户的所有分享吗？",
+    "revokeAllSuccess": "已撤销该用户的所有分享",
+    "manageSharesTitle": "管理分享用户",
+    "manageSharesDesc": "查看并管理所有您曾分享过账号的用户。",
+    "noSharedUsers": "您还没有分享过任何账号。",
+    "account": "个账号",
+    "accounts": "个账号",
+    "revokeThisAccount": "撤销此账号的分享",
+    "revokeAllShares": "撤销所有分享"
   },
   "Login": {
     "title": "Taste / League",

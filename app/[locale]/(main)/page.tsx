@@ -5,6 +5,7 @@ import { logout } from '@/app/actions/auth';
 import { LogOut } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { ManageSharesButton } from '@/components/ManageSharesButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,10 @@ export default async function DashboardPage() {
           <h2 className="text-xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500 uppercase">
             {t('accountsTitle')}
           </h2>
-          <AddAccountForm />
+          <div className="flex items-center gap-3">
+            <ManageSharesButton />
+            <AddAccountForm />
+          </div>
         </div>
 
         {accounts.length === 0 ? (

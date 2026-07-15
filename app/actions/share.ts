@@ -269,3 +269,79 @@ export async function batchRevokeShareForUser(accountIds: string[], targetUserId
   }
 }
 
+export async function getUsersWithSharedAccounts() {
+  const userId = await requireAuth();
+
+  const shares = await prisma.sharedAccount.findMany({
+    where: {
+      account: {
+        ownerId: userId
+      }
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          nickname: true,
+          email: true,
+        }
+      },
+      account: {
+        select: {
+          id: true,
+          alias: true,
+          region: true,
+          summonerId: true,
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+
+  const userMap = new Map();
+  for (const share of shares) {
+    if (!userMap.has(share.userId)) {
+      userMap.set(share.userId, {
+        user: {
+          id: share.user.id,
+          nickname: share.user.nickname,
+          displayInfo: share.user.email.replace(/(.{2})(.*)(?=@)/,
+            (gp1, gp2, gp3) => { 
+              let mask = "";
+              for(let i=0; i<gp3.length; i++) mask += "*";
+              return gp2 + mask;
+            }
+          )
+        },
+        accounts: []
+      });
+    }
+    userMap.get(share.userId).accounts.push(share.account);
+  }
+
+  return { success: true, users: Array.from(userMap.values()) };
+}
+
+export async function revokeAllSharesForUser(targetUserId: string) {
+  const userId = await requireAuth();
+  
+  const accounts = await prisma.account.findMany({ where: { ownerId: userId } });
+  const authorizedAccountIds = accounts.map(a => a.id);
+
+  try {
+    await prisma.sharedAccount.deleteMany({
+      where: {
+        userId: targetUserId,
+        accountId: { in: authorizedAccountIds }
+      }
+    });
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: 'Failed to revoke shares for user' };
+  }
+}
+
