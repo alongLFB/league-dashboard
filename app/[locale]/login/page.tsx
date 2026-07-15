@@ -86,10 +86,11 @@ export default function LoginPage() {
             {loading ? <Loader2 size={16} className="animate-spin" /> : t('loginBtn')}
           </button>
         </form>
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center flex flex-col items-center gap-3">
+          <span className="text-xs text-gray-500 tracking-[0.1em]">{t('noAccount')}</span>
           <Link 
             href="/register"
-            className="text-xs text-gray-500 hover:text-gray-300 tracking-[0.1em] uppercase transition-colors inline-block"
+            className="text-xs text-purple-400 hover:text-purple-300 font-bold tracking-[0.1em] uppercase transition-colors inline-block border border-purple-500/30 px-6 py-2 rounded-full hover:bg-purple-500/10"
           >
             {t('createAccount')}
           </Link>

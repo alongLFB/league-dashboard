@@ -8,7 +8,14 @@ import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 
 export async function login(username: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { username } });
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { username: username },
+        { email: username }
+      ]
+    }
+  });
   if (!user) {
     return { success: false, error: 'User not found' };
   }

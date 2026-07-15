@@ -9,9 +9,10 @@
   },
   "Login": {
     "title": "Taste / League",
-    "usernamePlaceholder": "输入账号",
+    "usernamePlaceholder": "输入账号或邮箱",
     "passwordPlaceholder": "输入密码",
     "loginBtn": "登录",
+    "noAccount": "还没有账号？",
     "createAccount": "创建账号"
   },
   "Register": {

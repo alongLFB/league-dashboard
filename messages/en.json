@@ -9,9 +9,10 @@
   },
   "Login": {
     "title": "Taste / League",
-    "usernamePlaceholder": "USERNAME",
+    "usernamePlaceholder": "USERNAME OR EMAIL",
     "passwordPlaceholder": "PASSWORD",
     "loginBtn": "Login",
+    "noAccount": "Don't have an account?",
     "createAccount": "Create an Account"
   },
   "Register": {
