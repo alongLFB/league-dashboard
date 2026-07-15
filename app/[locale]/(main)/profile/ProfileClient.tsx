@@ -78,7 +78,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
     setSendingResetCode(false);
     
     if (res.success) {
-      toast.success('Code sent to your email');
+      toast.success(t('codeSent'));
       setResetCountdown(60);
       const timer = setInterval(() => {
         setResetCountdown((c) => {
@@ -90,7 +90,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
         });
       }, 1000);
     } else {
-      toast.error(res.error || 'Failed to send code');
+      toast.error(res.error || t('sendCodeFailed'));
     }
   };
 
@@ -114,7 +114,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
 
   const handleSendCode = async () => {
     if (!newEmail) {
-      toast.error('Please enter a new email');
+      toast.error(t('enterNewEmail'));
       return;
     }
     
@@ -123,7 +123,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
     setSendingCode(false);
     
     if (res.success) {
-      toast.success('Code sent to new email');
+      toast.success(t('codeSent'));
       setCountdown(60);
       const timer = setInterval(() => {
         setCountdown((c) => {
@@ -135,7 +135,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
         });
       }, 1000);
     } else {
-      toast.error(res.error || 'Failed to send code');
+      toast.error(res.error || t('sendCodeFailed'));
     }
   };
 

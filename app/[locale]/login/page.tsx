@@ -45,7 +45,7 @@ export default function LoginPage() {
 
   const handleSendResetCode = async () => {
     if (!resetEmail) {
-      toast.error('Please enter your email');
+      toast.error(t('enterEmail'));
       return;
     }
     setSendingCode(true);
@@ -53,7 +53,7 @@ export default function LoginPage() {
     setSendingCode(false);
     
     if (res.success) {
-      toast.success('Code sent to your email');
+      toast.success(t('codeSent'));
       setCountdown(60);
       const timer = setInterval(() => {
         setCountdown((c) => {
@@ -65,7 +65,7 @@ export default function LoginPage() {
         });
       }, 1000);
     } else {
-      toast.error(res.error || 'Failed to send code');
+      toast.error(res.error || t('sendCodeFailed'));
     }
   };
 
@@ -77,12 +77,12 @@ export default function LoginPage() {
       setLoading(false);
       
       if (res.success) {
-        toast.success('Password reset successful');
+        toast.success(t('resetSuccess'));
         setUsername(resetEmail);
         setPassword('');
         setView('login');
       } else {
-        toast.error(res.error || 'Failed to reset password');
+        toast.error(res.error || t('resetFailed'));
       }
     }
   };

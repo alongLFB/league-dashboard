@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { X, Search, Loader2, Share2, UserCheck, Users, ShieldMinus } from 'lucide-react';
 import { searchUserForShare, shareAccount, getAccountShares, revokeShare, batchShareAccounts, getBatchAccountShares, batchRevokeShareForUser } from '@/app/actions/share';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 interface ShareModalProps {
   accountIds: string[];
@@ -13,6 +14,7 @@ interface ShareModalProps {
 export function ShareModal({ accountIds, onClose }: ShareModalProps) {
   const isBatch = accountIds.length > 1;
   const [activeTab, setActiveTab] = useState<'share' | 'manage'>('share');
+  const t = useTranslations('Share');
   
   // Share state
   const [query, setQuery] = useState('');
@@ -53,10 +55,10 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
       if (user) {
         setTargetUser(user);
       } else {
-        toast.error('User not found. Try another username or email.');
+        toast.error(t('userNotFound'));
       }
     } catch (error) {
-      toast.error('Search failed');
+      toast.error(t('searchFailed'));
     } finally {
       setSearching(false);
     }
@@ -75,10 +77,10 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
     setSharing(false);
     
     if (res.success) {
-      toast.success(isBatch ? `Shared ${accountIds.length} accounts with ${targetUser.nickname}` : `Account shared with ${targetUser.nickname}`);
+      toast.success(isBatch ? t('shareBatchSuccess', { count: accountIds.length, nickname: targetUser.nickname }) : t('shareSuccess', { nickname: targetUser.nickname }));
       onClose();
     } else {
-      toast.error(res?.error || 'Failed to share');
+      toast.error(res?.error || t('shareFailed'));
     }
   };
 
@@ -90,10 +92,10 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
     setRevokingId(null);
     
     if (res.success) {
-      toast.success(isBatch ? 'Shares revoked for this user' : 'Share revoked successfully');
+      toast.success(isBatch ? t('revokeBatchSuccess') : t('revokeSuccess'));
       setSharedUsers(prev => prev.filter(u => u.userId !== targetUserId));
     } else {
-      toast.error(res.error || 'Failed to revoke share');
+      toast.error(res.error || t('revokeFailed'));
     }
   };
 

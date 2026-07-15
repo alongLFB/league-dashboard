@@ -20,7 +20,13 @@
     "account": "个账号",
     "accounts": "个账号",
     "revokeThisAccount": "撤销此账号的分享",
-    "revokeAllShares": "撤销所有分享"
+    "revokeAllShares": "撤销所有分享",
+    "userNotFound": "未找到用户，请尝试其他账号或邮箱。",
+    "searchFailed": "搜索失败",
+    "shareSuccess": "已成功分享给 {nickname}",
+    "shareBatchSuccess": "已将 {count} 个账号分享给 {nickname}",
+    "shareFailed": "分享失败",
+    "revokeBatchSuccess": "已撤销对该用户的所有分享"
   },
   "Profile": {
     "title": "个人设置",
@@ -42,6 +48,9 @@
     "updateFailed": "更新失败",
     "resetViaEmail": "通过邮箱重置",
     "updateWithCurrent": "使用当前密码更新",
+    "codeSent": "验证码已发送至您的邮箱",
+    "sendCodeFailed": "验证码发送失败",
+    "enterNewEmail": "请输入新邮箱",
     "logout": "退出登录"
   },
   "Login": {
@@ -57,7 +66,12 @@
     "backToLogin": "返回登录",
     "emailPlaceholder": "邮箱地址",
     "codePlaceholder": "验证码",
-    "sendCode": "发送"
+    "sendCode": "发送",
+    "enterEmail": "请输入您的邮箱",
+    "codeSent": "验证码已发送至您的邮箱",
+    "sendCodeFailed": "验证码发送失败",
+    "resetSuccess": "密码重置成功",
+    "resetFailed": "密码重置失败"
   },
   "Register": {
     "title": "创建账号",
@@ -68,7 +82,10 @@
     "password": "密码",
     "sendCode": "发送",
     "registerBtn": "注册",
-    "backToLogin": "返回登录"
+    "backToLogin": "返回登录",
+    "enterEmailFirst": "请先输入您的邮箱",
+    "codeSent": "验证码已发送至您的邮箱",
+    "registerSuccess": "注册成功！"
   },
   "Form": {
     "newAccount": "添加新账号",

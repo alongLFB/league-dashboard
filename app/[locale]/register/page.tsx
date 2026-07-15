@@ -34,7 +34,7 @@ export default function RegisterPage() {
 
   const handleSendCode = async () => {
     if (!formData.email) {
-      toast.error('Please enter your email first');
+      toast.error(t('enterEmailFirst'));
       return;
     }
     
@@ -43,7 +43,7 @@ export default function RegisterPage() {
     setSendingCode(false);
     
     if (res.success) {
-      toast.success('Verification code sent to your email');
+      toast.success(t('codeSent'));
       setCountdown(60);
     } else {
       toast.error(res.error);
@@ -55,7 +55,7 @@ export default function RegisterPage() {
     setLoading(true);
     const res = await register(formData);
     if (res.success) {
-      toast.success('Registration successful!');
+      toast.success(t('registerSuccess'));
       router.replace('/');
       router.refresh();
     } else {

@@ -20,7 +20,13 @@
     "account": "Account",
     "accounts": "Accounts",
     "revokeThisAccount": "Revoke this account",
-    "revokeAllShares": "Revoke All Shares"
+    "revokeAllShares": "Revoke All Shares",
+    "userNotFound": "User not found. Try another username or email.",
+    "searchFailed": "Search failed",
+    "shareSuccess": "Account shared with {nickname}",
+    "shareBatchSuccess": "Shared {count} accounts with {nickname}",
+    "shareFailed": "Failed to share",
+    "revokeBatchSuccess": "Shares revoked for this user"
   },
   "Profile": {
     "title": "Profile Settings",
@@ -42,6 +48,9 @@
     "updateFailed": "Update failed",
     "resetViaEmail": "Reset via Email",
     "updateWithCurrent": "Update with Password",
+    "codeSent": "Code sent to your email",
+    "sendCodeFailed": "Failed to send code",
+    "enterNewEmail": "Please enter a new email",
     "logout": "Log out"
   },
   "Login": {
@@ -57,7 +66,12 @@
     "backToLogin": "Back to Login",
     "emailPlaceholder": "EMAIL",
     "codePlaceholder": "VERIFICATION CODE",
-    "sendCode": "Send"
+    "sendCode": "Send",
+    "enterEmail": "Please enter your email",
+    "codeSent": "Code sent to your email",
+    "sendCodeFailed": "Failed to send code",
+    "resetSuccess": "Password reset successful",
+    "resetFailed": "Failed to reset password"
   },
   "Register": {
     "title": "Create Account",
@@ -68,7 +82,10 @@
     "password": "PASSWORD",
     "sendCode": "Send",
     "registerBtn": "Register",
-    "backToLogin": "Back to Login"
+    "backToLogin": "Back to Login",
+    "enterEmailFirst": "Please enter your email first",
+    "codeSent": "Verification code sent to your email",
+    "registerSuccess": "Registration successful!"
   },
   "Form": {
     "newAccount": "New Account",
