@@ -36,8 +36,8 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-            # 从服务器本地现有的 .env.local 或 .env 文件中提取 PORT，未提取到则默认 3006
-            APP_PORT=3006
+            # 从服务器本地现有的 .env.local 或 .env 文件中提取 PORT，未提取到则默认 3021
+            APP_PORT=3021
             ENV_FILE=""
             if [ -f ".env.local" ]; then
               ENV_FILE=".env.local"
