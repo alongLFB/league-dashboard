@@ -6,13 +6,14 @@ import { eq, and, ne, or, inArray, desc } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { decryptSession } from '@/lib/session';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 async function requireAuth() {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('admin_session')?.value;
   const session = await decryptSession(sessionCookie);
   if (!session?.userId) {
-    throw new Error('Unauthorized');
+    redirect('/login');
   }
   return session.userId as string;
 }

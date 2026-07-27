@@ -6,6 +6,7 @@ import { eq, and, gt, desc } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { decryptSession, encryptSession } from '@/lib/session';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import bcrypt from 'bcryptjs';
 
 async function requireAuth() {
@@ -13,7 +14,7 @@ async function requireAuth() {
   const sessionCookie = cookieStore.get('admin_session')?.value;
   const session = await decryptSession(sessionCookie);
   if (!session?.userId) {
-    throw new Error('Unauthorized');
+    redirect('/login');
   }
   return session;
 }
