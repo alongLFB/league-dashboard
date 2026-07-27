@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { AccountCard } from './AccountCard';
 import { ShareModal } from './ShareModal';
-import { Share2, X, CheckSquare, CheckSquare2, ShieldMinus, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { Share2, X, CheckSquare } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface AccountListClientProps {
   accounts: any[];
@@ -14,6 +14,7 @@ export function AccountListClient({ accounts }: AccountListClientProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const tList = useTranslations('AccountList');
 
   const toggleSelect = (id: string) => {
     const newSelected = new Set(selectedIds);
@@ -38,7 +39,6 @@ export function AccountListClient({ accounts }: AccountListClientProps) {
     }
   };
 
-
   return (
     <>
       <div className="mb-6 flex justify-end">
@@ -48,7 +48,7 @@ export function AccountListClient({ accounts }: AccountListClientProps) {
             className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-300 uppercase tracking-widest transition-colors"
           >
             <CheckSquare size={14} />
-            Select Multiple
+            {tList('selectMultiple')}
           </button>
         )}
       </div>
@@ -71,7 +71,7 @@ export function AccountListClient({ accounts }: AccountListClientProps) {
           <div className="bg-[#0d1117]/90 backdrop-blur-xl border border-gray-700 p-2 rounded-2xl shadow-2xl flex items-center gap-4 shadow-blue-900/20">
             <div className="pl-4 text-sm font-bold text-gray-300 flex items-center gap-2">
               <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-md text-xs">{selectedIds.size}</span>
-              Selected
+              {tList('selected')}
             </div>
             
             <div className="h-6 w-px bg-gray-700"></div>
@@ -79,7 +79,7 @@ export function AccountListClient({ accounts }: AccountListClientProps) {
             <button
               onClick={toggleSelectAll}
               className="p-2.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors"
-              title={selectedIds.size === accounts.length ? "Unselect All" : "Select All"}
+              title={selectedIds.size === accounts.length ? tList('unselectAll') : tList('selectAll')}
             >
               <CheckSquare size={16} className={selectedIds.size === accounts.length ? "text-blue-400" : ""} />
             </button>
@@ -94,13 +94,13 @@ export function AccountListClient({ accounts }: AccountListClientProps) {
               className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-500 hover:to-green-400 disabled:opacity-50 disabled:grayscale text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all"
             >
               <Share2 size={16} />
-              Share / Manage
+              {tList('shareOrManage')}
             </button>
             
             <button
               onClick={cancelSelection}
               className="p-2.5 mr-1 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors"
-              title="Cancel Selection"
+              title={tList('cancelSelection')}
             >
               <X size={16} />
             </button>

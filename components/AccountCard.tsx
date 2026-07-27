@@ -74,7 +74,7 @@ export function AccountCard({
     if (!text) return;
     await navigator.clipboard.writeText(text);
     setCopiedField(field);
-    toast.success(label ? `${label} 已复制` : tToast('copied'));
+    toast.success(label ? tCard('fieldCopied', { field: label }) : tToast('copied'));
     setTimeout(() => setCopiedField(null), 1500);
   };
 
@@ -161,7 +161,7 @@ export function AccountCard({
                 <button 
                   onClick={handleCopyAll}
                   className="p-2.5 rounded-full text-gray-500 hover:text-purple-400 hover:bg-purple-400/10 focus:outline-none transition-all"
-                  title="复制全套账号信息"
+                  title={tCard('copyAllTitle')}
                 >
                   {copiedField === 'all' ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
                 </button>
@@ -171,7 +171,7 @@ export function AccountCard({
                     <button 
                       onClick={() => setIsShareModalOpen(true)}
                       className="p-2.5 rounded-full text-gray-500 hover:text-green-400 hover:bg-green-400/10 focus:outline-none transition-all lg:opacity-0 group-hover:opacity-100"
-                      title="Share"
+                      title={tCard('shareBtn')}
                     >
                       <Share2 size={16} />
                     </button>
@@ -193,7 +193,7 @@ export function AccountCard({
                 ) : (
                   <div className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-full inline-flex items-center gap-1.5 shrink-0 ml-1">
                     <ShieldCheck size={12} className="text-green-400" />
-                    <span className="text-[10px] text-green-300 font-bold">Shared by {ownerNickname}</span>
+                    <span className="text-[10px] text-green-300 font-bold">{tCard('sharedBy', { nickname: ownerNickname || '' })}</span>
                   </div>
                 )}
               </div>

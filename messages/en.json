@@ -8,6 +8,14 @@
     "noAccounts": "No accounts found",
     "manageShares": "Manage Shares"
   },
+  "AccountList": {
+    "selectMultiple": "Select Multiple",
+    "selected": "Selected",
+    "selectAll": "Select All",
+    "unselectAll": "Unselect All",
+    "shareOrManage": "Share / Manage",
+    "cancelSelection": "Cancel Selection"
+  },
   "Share": {
     "loadFailed": "Failed to load shared users",
     "revokeSuccess": "Share revoked successfully",
@@ -26,7 +34,17 @@
     "shareSuccess": "Account shared with {nickname}",
     "shareBatchSuccess": "Shared {count} accounts with {nickname}",
     "shareFailed": "Failed to share",
-    "revokeBatchSuccess": "Shares revoked for this user"
+    "revokeBatchSuccess": "Shares revoked for this user",
+    "shareTitle": "Share Account",
+    "batchShareTitle": "Batch Share ({count})",
+    "shareDesc": "Share this account or manage existing shares.",
+    "batchShareDesc": "Share selected accounts with another user.",
+    "tabShare": "Share",
+    "tabManage": "Manage",
+    "usernameOrEmail": "Username or Email",
+    "confirmShare": "Confirm Share",
+    "notSharedYet": "Not shared with anyone yet.",
+    "revokeShareTitle": "Revoke Share"
   },
   "Profile": {
     "title": "Profile Settings",
@@ -45,7 +63,7 @@
     "sendCode": "Send Code",
     "updateEmail": "Update Email",
     "updateSuccess": "Update successful",
-    "updateFailed": "Update failed",
+    "updateFailed": "Failed to update",
     "resetViaEmail": "Reset via Email",
     "updateWithCurrent": "Update with Password",
     "codeSent": "Code sent to your email",
@@ -106,7 +124,11 @@
     "summonerId": "SUMMONER ID",
     "username": "USERNAME",
     "password": "PASSWORD",
-    "shareText": "🎮 League of Legends Account\n🌍 Region: {region}\n🆔 Summoner ID: {summonerId}\n👤 Username: {username}\n🔑 Password: {password}"
+    "shareText": "🎮 League of Legends Account\n🌍 Region: {region}\n🆔 Summoner ID: {summonerId}\n👤 Username: {username}\n🔑 Password: {password}",
+    "copyAllTitle": "Copy all account info",
+    "sharedBy": "Shared by {nickname}",
+    "fieldCopied": "{field} copied",
+    "shareBtn": "Share"
   },
   "Toast": {
     "added": "Account added successfully",

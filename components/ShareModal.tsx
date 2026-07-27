@@ -113,10 +113,10 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
           </button>
           
           <h3 className="text-xl font-bold mb-2 tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-400">
-            {isBatch ? `Batch Share (${accountIds.length})` : 'Share Account'}
+            {isBatch ? t('batchShareTitle', { count: accountIds.length }) : t('shareTitle')}
           </h3>
           <p className="text-xs text-gray-400 mb-6 tracking-wide">
-            {isBatch ? 'Share selected accounts with another user.' : 'Share this account or manage existing shares.'}
+            {isBatch ? t('batchShareDesc') : t('shareDesc')}
           </p>
           
           <div className="flex bg-gray-900/50 p-1 rounded-xl mb-6">
@@ -124,13 +124,13 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
               onClick={() => setActiveTab('share')}
               className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'share' ? 'bg-blue-600/20 text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
             >
-              Share
+              {t('tabShare')}
             </button>
             <button
               onClick={() => setActiveTab('manage')}
               className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'manage' ? 'bg-blue-600/20 text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
             >
-              Manage
+              {t('tabManage')}
             </button>
           </div>
           
@@ -145,7 +145,7 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
                       setQuery(e.target.value);
                       setTargetUser(null);
                     }}
-                    placeholder="Username or Email"
+                    placeholder={t('usernameOrEmail')}
                     className="w-full bg-gray-900/50 border border-gray-800 rounded-xl py-3 pl-4 pr-12 text-sm tracking-wide text-gray-200 outline-none focus:border-blue-500 transition-colors"
                   />
                   <button
@@ -175,7 +175,7 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
                       className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-500 hover:to-green-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-50 shadow-lg shadow-blue-900/20 focus:outline-none"
                     >
                       {sharing ? <Loader2 size={16} className="animate-spin" /> : <Share2 size={16} />}
-                      Confirm Share
+                      {t('confirmShare')}
                     </button>
                   </div>
                 )}
@@ -189,7 +189,7 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
                 ) : sharedUsers.length === 0 ? (
                   <div className="text-center py-8 text-gray-500 flex flex-col items-center">
                     <Users size={32} className="mb-3 opacity-20" />
-                    <p className="text-sm">Not shared with anyone yet.</p>
+                    <p className="text-sm">{t('notSharedYet')}</p>
                   </div>
                 ) : (
                   sharedUsers.map(user => (
@@ -207,7 +207,7 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
                         onClick={() => handleRevoke(user.userId)}
                         disabled={revokingId === user.userId}
                         className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all disabled:opacity-50"
-                        title="Revoke Share"
+                        title={t('revokeThisAccount')}
                       >
                         {revokingId === user.userId ? <Loader2 size={16} className="animate-spin text-red-400" /> : <ShieldMinus size={16} />}
                       </button>

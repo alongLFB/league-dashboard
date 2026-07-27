@@ -8,6 +8,14 @@
     "noAccounts": "暂无账号数据",
     "manageShares": "管理分享"
   },
+  "AccountList": {
+    "selectMultiple": "多选模式",
+    "selected": "已选择",
+    "selectAll": "全选",
+    "unselectAll": "取消全选",
+    "shareOrManage": "分享 / 管理",
+    "cancelSelection": "取消选择"
+  },
   "Share": {
     "loadFailed": "加载分享用户失败",
     "revokeSuccess": "已成功撤销分享",
@@ -26,7 +34,17 @@
     "shareSuccess": "已成功分享给 {nickname}",
     "shareBatchSuccess": "已将 {count} 个账号分享给 {nickname}",
     "shareFailed": "分享失败",
-    "revokeBatchSuccess": "已撤销对该用户的所有分享"
+    "revokeBatchSuccess": "已撤销对该用户的所有分享",
+    "shareTitle": "分享账号",
+    "batchShareTitle": "批量分享 ({count})",
+    "shareDesc": "将此账号分享给其他用户，或管理已有的分享。",
+    "batchShareDesc": "将选中的账号批量分享给其他用户。",
+    "tabShare": "分享",
+    "tabManage": "管理",
+    "usernameOrEmail": "用户名或邮箱",
+    "confirmShare": "确认分享",
+    "notSharedYet": "暂未分享给任何用户。",
+    "revokeShareTitle": "撤销分享"
   },
   "Profile": {
     "title": "个人设置",
@@ -106,7 +124,11 @@
     "summonerId": "召唤师 ID",
     "username": "登录账号",
     "password": "登录密码",
-    "shareText": "🎮 英雄联盟账号\n🌍 大区: {region}\n🆔 召唤师: {summonerId}\n👤 账号: {username}\n🔑 密码: {password}"
+    "shareText": "🎮 英雄联盟账号\n🌍 大区: {region}\n🆔 召唤师: {summonerId}\n👤 账号: {username}\n🔑 密码: {password}",
+    "copyAllTitle": "复制全套账号信息",
+    "sharedBy": "来自 {nickname} 的分享",
+    "fieldCopied": "{field} 已复制",
+    "shareBtn": "分享"
   },
   "Toast": {
     "added": "账号添加成功",
