@@ -1,0 +1,60 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - master # 触发的分支
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH and Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}     # 服务器IP
+          username: ${{ secrets.SERVER_USER }} # 服务器用户名
+          key: ${{ secrets.SERVER_SSH_KEY }}   # 服务器私钥
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            mkdir -p ~/github
+            cd ~/github
+            
+            if [ ! -d "league-dashboard" ]; then
+              git clone https://github.com/alongLFB/league-dashboard.git
+              cd league-dashboard
+            else
+              cd league-dashboard
+              git fetch origin master
+              git reset --hard origin/master
+            fi
+
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+            # 从服务器本地现有的 .env.local 或 .env 文件中提取 PORT，未提取到则默认 3006
+            APP_PORT=3006
+            ENV_FILE=""
+            if [ -f ".env.local" ]; then
+              ENV_FILE=".env.local"
+            elif [ -f ".env" ]; then
+              ENV_FILE=".env"
+            fi
+
+            if [ -n "$ENV_FILE" ]; then
+              EXTRACTED_PORT=$(grep -E '^PORT=' "$ENV_FILE" | cut -d '=' -f2 | tr -d '\r" ' || true)
+              if [ -n "$EXTRACTED_PORT" ]; then
+                APP_PORT=$EXTRACTED_PORT
+              fi
+            fi
+
+            rm -rf .next
+            npm ci
+            npm run build
+
+            pm2 reload lol-ai-eval --update-env || pm2 start npm --name "lol-ai-eval" -- start -- -p $APP_PORT
+            pm2 save
