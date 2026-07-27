@@ -1,6 +1,8 @@
 'use server';
 
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db/client';
+import { accounts, users, sharedAccounts } from '@/lib/db/schema';
+import { eq, or, inArray, desc } from 'drizzle-orm';
 import { encrypt, decrypt } from '@/lib/crypto';
 import { revalidatePath } from 'next/cache';
 import { decryptSession } from '@/lib/session';
@@ -19,20 +21,35 @@ async function requireAuth() {
 export async function getAccounts() {
   const userId = await requireAuth();
   
-  const accounts = await prisma.account.findMany({
-    where: {
-      OR: [
-        { ownerId: userId },
-        { sharedWith: { some: { userId } } }
-      ]
-    },
-    include: {
-      owner: { select: { nickname: true } }
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+  const shared = await db
+    .select({ accountId: sharedAccounts.accountId })
+    .from(sharedAccounts)
+    .where(eq(sharedAccounts.userId, userId));
   
-  return accounts.map(acc => ({
+  const sharedIds = shared.map(s => s.accountId);
+
+  const whereClause = sharedIds.length > 0
+    ? or(eq(accounts.ownerId, userId), inArray(accounts.id, sharedIds))
+    : eq(accounts.ownerId, userId);
+
+  const resultList = await db
+    .select({
+      id: accounts.id,
+      region: accounts.region,
+      alias: accounts.alias,
+      summonerId: accounts.summonerId,
+      username: accounts.username,
+      password: accounts.password,
+      ownerId: accounts.ownerId,
+      createdAt: accounts.createdAt,
+      ownerNickname: users.nickname,
+    })
+    .from(accounts)
+    .leftJoin(users, eq(accounts.ownerId, users.id))
+    .where(whereClause)
+    .orderBy(desc(accounts.createdAt));
+
+  return resultList.map(acc => ({
     id: acc.id,
     region: acc.region,
     alias: acc.alias,
@@ -40,7 +57,7 @@ export async function getAccounts() {
     username: acc.username,
     password: decrypt(acc.password),
     isOwner: acc.ownerId === userId,
-    ownerNickname: acc.owner.nickname
+    ownerNickname: acc.ownerNickname ?? 'Unknown'
   }));
 }
 
@@ -55,15 +72,13 @@ export async function addAccount(data: {
   
   const encryptedPassword = encrypt(data.password);
   
-  await prisma.account.create({
-    data: {
-      region: data.region,
-      alias: data.alias,
-      summonerId: data.summonerId,
-      username: data.username,
-      password: encryptedPassword,
-      ownerId: userId
-    }
+  await db.insert(accounts).values({
+    region: data.region,
+    alias: data.alias,
+    summonerId: data.summonerId,
+    username: data.username,
+    password: encryptedPassword,
+    ownerId: userId
   });
   
   revalidatePath('/');
@@ -72,14 +87,18 @@ export async function addAccount(data: {
 export async function deleteAccount(id: string) {
   const userId = await requireAuth();
   
-  const account = await prisma.account.findUnique({ where: { id } });
+  const [account] = await db
+    .select()
+    .from(accounts)
+    .where(eq(accounts.id, id));
+
   if (!account || account.ownerId !== userId) {
     throw new Error('Unauthorized');
   }
   
-  await prisma.account.delete({
-    where: { id }
-  });
+  await db
+    .delete(accounts)
+    .where(eq(accounts.id, id));
   
   revalidatePath('/');
 }
@@ -93,23 +112,28 @@ export async function updateAccount(id: string, data: {
 }) {
   const userId = await requireAuth();
   
-  const account = await prisma.account.findUnique({ where: { id } });
+  const [account] = await db
+    .select()
+    .from(accounts)
+    .where(eq(accounts.id, id));
+
   if (!account || account.ownerId !== userId) {
     throw new Error('Unauthorized');
   }
 
   const encryptedPassword = encrypt(data.password);
   
-  await prisma.account.update({
-    where: { id },
-    data: {
+  await db
+    .update(accounts)
+    .set({
       region: data.region,
       alias: data.alias,
       summonerId: data.summonerId,
       username: data.username,
       password: encryptedPassword,
-    }
-  });
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(accounts.id, id));
   
   revalidatePath('/');
 }

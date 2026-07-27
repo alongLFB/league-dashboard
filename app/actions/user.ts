@@ -1,6 +1,8 @@
 'use server';
 
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db/client';
+import { users, verificationCodes } from '@/lib/db/schema';
+import { eq, and, gt, desc } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { decryptSession, encryptSession } from '@/lib/session';
 import { cookies } from 'next/headers';
@@ -18,15 +20,15 @@ async function requireAuth() {
 
 export async function getUserProfile() {
   const session = await requireAuth();
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId as string },
-    select: {
-      username: true,
-      nickname: true,
-      email: true,
-      createdAt: true
-    }
-  });
+  const [user] = await db
+    .select({
+      username: users.username,
+      nickname: users.nickname,
+      email: users.email,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .where(eq(users.id, session.userId as string));
   
   if (!user) {
     return { success: false, error: 'User not found' };
@@ -44,10 +46,19 @@ export async function updateNickname(newNickname: string) {
   }
 
   try {
-    const user = await prisma.user.update({
-      where: { id: userId },
-      data: { nickname: newNickname }
-    });
+    await db
+      .update(users)
+      .set({ nickname: newNickname })
+      .where(eq(users.id, userId));
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId));
+
+    if (!user) {
+      return { success: false, error: 'User not found' };
+    }
 
     // Update session with new nickname
     const newSession = await encryptSession({ 
@@ -79,33 +90,42 @@ export async function updateEmail(newEmail: string, code: string) {
   const userId = session.userId as string;
 
   // Verify code
-  const validCode = await prisma.verificationCode.findFirst({
-    where: {
-      email: newEmail,
-      code,
-      expiresAt: { gt: new Date() },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  const [validCode] = await db
+    .select()
+    .from(verificationCodes)
+    .where(
+      and(
+        eq(verificationCodes.email, newEmail),
+        eq(verificationCodes.code, code),
+        gt(verificationCodes.expiresAt, new Date())
+      )
+    )
+    .orderBy(desc(verificationCodes.createdAt));
 
   if (!validCode) {
     return { success: false, error: 'Invalid or expired verification code' };
   }
 
   // Check if email already in use
-  const existingUser = await prisma.user.findUnique({ where: { email: newEmail } });
+  const [existingUser] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, newEmail));
+
   if (existingUser && existingUser.id !== userId) {
     return { success: false, error: 'Email already registered to another account' };
   }
 
   try {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { email: newEmail }
-    });
+    await db
+      .update(users)
+      .set({ email: newEmail })
+      .where(eq(users.id, userId));
     
     // Invalidate the code
-    await prisma.verificationCode.delete({ where: { id: validCode.id } });
+    await db
+      .delete(verificationCodes)
+      .where(eq(verificationCodes.id, validCode.id));
 
     revalidatePath('/profile');
     return { success: true };
@@ -119,7 +139,11 @@ export async function updatePassword(currentPassword: string, newPassword: strin
   const session = await requireAuth();
   const userId = session.userId as string;
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId));
+
   if (!user) {
     return { success: false, error: 'User not found' };
   }
@@ -132,10 +156,10 @@ export async function updatePassword(currentPassword: string, newPassword: strin
   const newPasswordHash = await bcrypt.hash(newPassword, 10);
 
   try {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { passwordHash: newPasswordHash }
-    });
+    await db
+      .update(users)
+      .set({ passwordHash: newPasswordHash })
+      .where(eq(users.id, userId));
 
     return { success: true };
   } catch (error) {

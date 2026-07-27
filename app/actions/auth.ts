@@ -3,19 +3,18 @@
 import { cookies } from 'next/headers';
 import { encryptSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db/client';
+import { users, verificationCodes } from '@/lib/db/schema';
+import { eq, or, and, gt, desc } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 
 export async function login(username: string, password: string) {
-  const user = await prisma.user.findFirst({
-    where: {
-      OR: [
-        { username: username },
-        { email: username }
-      ]
-    }
-  });
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(or(eq(users.username, username), eq(users.email, username)));
+
   if (!user) {
     return { success: false, error: 'User not found' };
   }
@@ -47,7 +46,11 @@ export async function logout() {
 
 export async function sendVerificationCode(email: string) {
   // Check if user exists
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const [existing] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email));
+
   if (existing) {
     return { success: false, error: 'Email already registered' };
   }
@@ -55,8 +58,10 @@ export async function sendVerificationCode(email: string) {
   const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit code
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-  await prisma.verificationCode.create({
-    data: { email, code, expiresAt },
+  await db.insert(verificationCodes).values({
+    email,
+    code,
+    expiresAt,
   });
 
   const transporter = nodemailer.createTransport({
@@ -87,38 +92,45 @@ export async function register(data: any) {
   const { username, password, nickname, email, code } = data;
 
   // Verify code
-  const validCode = await prisma.verificationCode.findFirst({
-    where: {
-      email,
-      code,
-      expiresAt: { gt: new Date() },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  const [validCode] = await db
+    .select()
+    .from(verificationCodes)
+    .where(
+      and(
+        eq(verificationCodes.email, email),
+        eq(verificationCodes.code, code),
+        gt(verificationCodes.expiresAt, new Date())
+      )
+    )
+    .orderBy(desc(verificationCodes.createdAt));
 
   if (!validCode) {
     return { success: false, error: 'Invalid or expired verification code' };
   }
 
   // Check username
-  const existingUsername = await prisma.user.findUnique({ where: { username } });
+  const [existingUsername] = await db
+    .select()
+    .from(users)
+    .where(eq(users.username, username));
+
   if (existingUsername) {
     return { success: false, error: 'Username already taken' };
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
+  const userId = crypto.randomUUID();
 
-  const user = await prisma.user.create({
-    data: {
-      username,
-      passwordHash,
-      nickname,
-      email,
-    },
+  await db.insert(users).values({
+    id: userId,
+    username,
+    passwordHash,
+    nickname,
+    email,
   });
 
   // Login after register
-  const session = await encryptSession({ userId: user.id, username: user.username, nickname: user.nickname });
+  const session = await encryptSession({ userId, username, nickname });
   const cookieStore = await cookies();
   cookieStore.set('admin_session', session, {
     httpOnly: true,
@@ -133,7 +145,11 @@ export async function register(data: any) {
 
 export async function sendPasswordResetCode(email: string) {
   // Check if user exists
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const [existing] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email));
+
   if (!existing) {
     return { success: false, error: 'User not found with this email' };
   }
@@ -141,8 +157,10 @@ export async function sendPasswordResetCode(email: string) {
   const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit code
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-  await prisma.verificationCode.create({
-    data: { email, code, expiresAt },
+  await db.insert(verificationCodes).values({
+    email,
+    code,
+    expiresAt,
   });
 
   const transporter = nodemailer.createTransport({
@@ -171,20 +189,27 @@ export async function sendPasswordResetCode(email: string) {
 
 export async function resetPasswordWithCode(email: string, code: string, newPassword: string) {
   // Verify code
-  const validCode = await prisma.verificationCode.findFirst({
-    where: {
-      email,
-      code,
-      expiresAt: { gt: new Date() },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  const [validCode] = await db
+    .select()
+    .from(verificationCodes)
+    .where(
+      and(
+        eq(verificationCodes.email, email),
+        eq(verificationCodes.code, code),
+        gt(verificationCodes.expiresAt, new Date())
+      )
+    )
+    .orderBy(desc(verificationCodes.createdAt));
 
   if (!validCode) {
     return { success: false, error: 'Invalid or expired verification code' };
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email));
+
   if (!user) {
     return { success: false, error: 'User not found' };
   }
@@ -192,13 +217,15 @@ export async function resetPasswordWithCode(email: string, code: string, newPass
   const passwordHash = await bcrypt.hash(newPassword, 10);
 
   try {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { passwordHash }
-    });
+    await db
+      .update(users)
+      .set({ passwordHash })
+      .where(eq(users.id, user.id));
 
     // Invalidate the code
-    await prisma.verificationCode.delete({ where: { id: validCode.id } });
+    await db
+      .delete(verificationCodes)
+      .where(eq(verificationCodes.id, validCode.id));
 
     return { success: true };
   } catch (error) {
