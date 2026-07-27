@@ -69,10 +69,26 @@ export function AccountCard({
   // Share State
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
-  const handleCopy = async (text: string, field: string) => {
+  const handleCopy = async (e: React.MouseEvent, text: string, field: string, label?: string) => {
+    e.stopPropagation();
     if (!text) return;
     await navigator.clipboard.writeText(text);
     setCopiedField(field);
+    toast.success(label ? `${label} 已复制` : tToast('copied'));
+    setTimeout(() => setCopiedField(null), 1500);
+  };
+
+  const handleCopyAll = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const text = tCard('shareText', {
+      region,
+      summonerId,
+      username,
+      password: password || ''
+    });
+    await navigator.clipboard.writeText(text);
+    setCopiedField('all');
+    toast.success(tToast('copied'));
     setTimeout(() => setCopiedField(null), 1500);
   };
 
@@ -141,36 +157,46 @@ export function AccountCard({
                 </span>
               </div>
               
-              {isOwner ? (
-                <div className="flex items-center gap-0.5 opacity-100 lg:opacity-0 transition-opacity group-hover:opacity-100 shrink-0 -mt-2 -mr-2">
-                  <button 
-                    onClick={() => setIsShareModalOpen(true)}
-                    className="p-2.5 rounded-full text-gray-500 hover:text-green-400 hover:bg-green-400/10 focus:outline-none transition-all"
-                    title="Share"
-                  >
-                    <Share2 size={16} />
-                  </button>
-                  <button 
-                    onClick={openEdit}
-                    className="p-2.5 rounded-full text-gray-500 hover:text-blue-400 hover:bg-blue-400/10 focus:outline-none transition-all"
-                    title={tForm('editAccount')}
-                  >
-                    <Pencil size={16} />
-                  </button>
-                  <button 
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="p-2.5 rounded-full text-gray-500 hover:text-red-400 hover:bg-red-400/10 focus:outline-none transition-all"
-                    title={tForm('deleteTitle')}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ) : (
-                <div className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-full inline-flex items-center gap-1.5 shrink-0">
-                  <ShieldCheck size={12} className="text-green-400" />
-                  <span className="text-[10px] text-green-300 font-bold">Shared by {ownerNickname}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-0.5 shrink-0 -mt-2 -mr-2">
+                <button 
+                  onClick={handleCopyAll}
+                  className="p-2.5 rounded-full text-gray-500 hover:text-purple-400 hover:bg-purple-400/10 focus:outline-none transition-all"
+                  title="复制全套账号信息"
+                >
+                  {copiedField === 'all' ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
+                </button>
+                
+                {isOwner ? (
+                  <>
+                    <button 
+                      onClick={() => setIsShareModalOpen(true)}
+                      className="p-2.5 rounded-full text-gray-500 hover:text-green-400 hover:bg-green-400/10 focus:outline-none transition-all lg:opacity-0 group-hover:opacity-100"
+                      title="Share"
+                    >
+                      <Share2 size={16} />
+                    </button>
+                    <button 
+                      onClick={openEdit}
+                      className="p-2.5 rounded-full text-gray-500 hover:text-blue-400 hover:bg-blue-400/10 focus:outline-none transition-all lg:opacity-0 group-hover:opacity-100"
+                      title={tForm('editAccount')}
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button 
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="p-2.5 rounded-full text-gray-500 hover:text-red-400 hover:bg-red-400/10 focus:outline-none transition-all lg:opacity-0 group-hover:opacity-100"
+                      title={tForm('deleteTitle')}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </>
+                ) : (
+                  <div className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-full inline-flex items-center gap-1.5 shrink-0 ml-1">
+                    <ShieldCheck size={12} className="text-green-400" />
+                    <span className="text-[10px] text-green-300 font-bold">Shared by {ownerNickname}</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-100 to-gray-400 flex items-center gap-2">
@@ -186,7 +212,7 @@ export function AccountCard({
               </span>
               <div 
                 className="flex items-center justify-between cursor-pointer group/item p-2 -mx-2 rounded-lg hover:bg-gray-800/50 transition-colors"
-                onClick={() => handleCopy(summonerId, 'summonerId')}
+                onClick={(e) => handleCopy(e, summonerId, 'summonerId', tCard('summonerId'))}
               >
                 <span className="text-sm text-gray-300 font-mono tracking-wide">{summonerId}</span>
                 <div className="text-gray-600 transition-colors group-hover/item:text-purple-400">
@@ -201,7 +227,7 @@ export function AccountCard({
               </span>
               <div 
                 className="flex items-center justify-between cursor-pointer group/item p-2 -mx-2 rounded-lg hover:bg-gray-800/50 transition-colors"
-                onClick={() => handleCopy(username, 'username')}
+                onClick={(e) => handleCopy(e, username, 'username', tCard('username'))}
               >
                 <span className="text-sm text-gray-300 font-mono tracking-wide">{username}</span>
                 <div className="text-gray-600 transition-colors group-hover/item:text-purple-400">
@@ -224,7 +250,7 @@ export function AccountCard({
               </div>
               <div 
                 className="flex items-center justify-between cursor-pointer group/item p-2 -mx-2 rounded-lg hover:bg-gray-800/50 transition-colors"
-                onClick={() => handleCopy(password || '', 'password')}
+                onClick={(e) => handleCopy(e, password || '', 'password', tCard('password'))}
               >
                 <span className={cn("text-sm font-mono tracking-widest", showPassword ? "text-gray-200" : "text-gray-600")}>
                   {showPassword ? password : '••••••••'}
