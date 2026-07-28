@@ -51,41 +51,33 @@ SMTP_PASS="your-smtp-auth-code"
 SMTP_FROM="admin@your-domain.com" # (可选) 自定义发件人邮箱，如果不填默认使用 SMTP_USER
 
 # 运行端口配置
-APP_PORT="3000"
-DB_PORT="5432"
+PORT="3021"
 
-# 数据库连接独立变量
-DB_USER="postgres"
-DB_PASSWORD="your_secure_password"
-DB_NAME="league_dashboard"
-
-# PostgreSQL 数据库连接地址 (用于本地运行, Docker Compose 部署会自动覆盖这个变量)
-DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}?schema=public"
+# Cloudflare D1 数据库配置 (HTTP API 通信凭证)
+CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
+CLOUDFLARE_D1_DATABASE_ID="your-cloudflare-d1-database-id"
+CLOUDFLARE_API_TOKEN="your-cloudflare-api-token"
 ```
 
-### 2. 一键部署 (推荐)
-本项目已提供完善的 `compose.yaml`，内置了 PostgreSQL 数据库和 Next.js 应用容器化部署：
-
-```bash
-docker compose up -d --build
-```
-> Docker 将会自动下载数据库，构建应用镜像，同步数据表结构并在后台运行。
-
-成功启动后，在浏览器访问 `http://localhost:3000`（如果你修改了 `.env` 里的 `APP_PORT`，请替换为对应的端口）。
-
-### 3. 本地手动启动 (仅开发)
-如果您不希望使用 Docker，在配置好本地 PostgreSQL 并修改 `.env` 后：
+### 2. 本地开发与启动
+在配置好 `.env` 环境变量后：
 
 ```bash
 # 安装依赖
 npm install
 
-# 推送数据库结构
-npx prisma db push
-
 # 启动开发服务器
 npm run dev
 ```
+
+### 3. Docker 容器部署
+本项目提供标准的 `compose.yaml`，支持容器化一键部署：
+
+```bash
+docker compose up -d --build
+```
+
+成功启动后，在浏览器访问 `http://localhost:3021`。
 
 您将进入系统页面，首先需要点击“Create an Account”注册一个您的账户（注册时需收取邮件验证码），注册登录后即可进入控制台开始管理和分享您的账号。
 

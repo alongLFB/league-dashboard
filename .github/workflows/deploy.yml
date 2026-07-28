@@ -56,5 +56,5 @@ jobs:
             npm ci
             npm run build
 
-            pm2 reload lol-ai-eval --update-env || pm2 start npm --name "lol-ai-eval" -- start -- -p $APP_PORT
+            pm2 reload league-dashboard --update-env || pm2 start npm --name "league-dashboard" -- start -- -p $APP_PORT
             pm2 save

@@ -51,41 +51,33 @@ SMTP_PASS="your-smtp-app-password"
 SMTP_FROM="admin@your-domain.com" # (Optional) Custom sender email, defaults to SMTP_USER if empty
 
 # Port Configuration
-APP_PORT="3000"
-DB_PORT="5432"
+PORT="3021"
 
-# Database variables
-DB_USER="postgres"
-DB_PASSWORD="your_secure_password"
-DB_NAME="league_dashboard"
-
-# PostgreSQL database connection URL (Used for local running; Docker Compose will override this)
-DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}?schema=public"
+# Cloudflare D1 Database Configuration (HTTP API credentials)
+CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
+CLOUDFLARE_D1_DATABASE_ID="your-cloudflare-d1-database-id"
+CLOUDFLARE_API_TOKEN="your-cloudflare-api-token"
 ```
 
-### 2. One-Click Deployment (Recommended)
-This project provides a complete `compose.yaml` for containerized deployment of both the PostgreSQL database and the Next.js application:
-
-```bash
-docker compose up -d --build
-```
-> Docker will automatically download the database, build the application image, sync the database schema, and run it in the background.
-
-After successfully starting, visit `http://localhost:3000` in your browser (if you modified `APP_PORT` in `.env`, replace 3000 with your configured port).
-
-### 3. Local Manual Start (Development Only)
-If you prefer not to use Docker, after setting up your local PostgreSQL and `.env`:
+### 2. Local Development
+After configuring the `.env` file:
 
 ```bash
 # Install dependencies
 npm install
 
-# Push database schema
-npx prisma db push
-
 # Start development server
 npm run dev
 ```
+
+### 3. Docker Container Deployment
+This project provides a standard `compose.yaml` for containerized deployment:
+
+```bash
+docker compose up -d --build
+```
+
+After successfully starting, visit `http://localhost:3021` in your browser.
 
 You will be greeted by the system interface. First, you need to click "Create an Account" to register (an email verification code is required). After registering and logging in, you can access the dashboard to manage and share your accounts.
 
