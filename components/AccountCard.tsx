@@ -84,7 +84,7 @@ export function AccountCard({
       region,
       summonerId,
       username,
-      password: password || ''
+      password: password || tCard('decryptError')
     });
     await navigator.clipboard.writeText(text);
     setCopiedField('all');
@@ -250,10 +250,10 @@ export function AccountCard({
               </div>
               <div 
                 className="flex items-center justify-between cursor-pointer group/item p-2 -mx-2 rounded-lg hover:bg-gray-800/50 transition-colors"
-                onClick={(e) => handleCopy(e, password || '', 'password', tCard('password'))}
+                onClick={(e) => handleCopy(e, password || tCard('decryptError'), 'password', tCard('password'))}
               >
                 <span className={cn("text-sm font-mono tracking-widest", showPassword ? "text-gray-200" : "text-gray-600")}>
-                  {showPassword ? password : '••••••••'}
+                  {showPassword ? (password || tCard('decryptError')) : '••••••••'}
                 </span>
                 <div className="text-gray-600 transition-colors group-hover/item:text-purple-400">
                   {copiedField === 'password' ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}

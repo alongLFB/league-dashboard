@@ -128,7 +128,8 @@
     "copyAllTitle": "复制全套账号信息",
     "sharedBy": "来自 {nickname} 的分享",
     "fieldCopied": "{field} 已复制",
-    "shareBtn": "分享"
+    "shareBtn": "分享",
+    "decryptError": "[解密失败]"
   },
   "Toast": {
     "added": "账号添加成功",

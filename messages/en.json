@@ -128,7 +128,8 @@
     "copyAllTitle": "Copy all account info",
     "sharedBy": "Shared by {nickname}",
     "fieldCopied": "{field} copied",
-    "shareBtn": "Share"
+    "shareBtn": "Share",
+    "decryptError": "[Decryption Failed]"
   },
   "Toast": {
     "added": "Account added successfully",
