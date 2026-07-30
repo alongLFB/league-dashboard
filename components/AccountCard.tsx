@@ -35,6 +35,7 @@ interface AccountCardProps {
   username: string;
   password?: string;
   isOwner?: boolean;
+  isShared?: boolean;
   ownerNickname?: string;
   isSelectionMode?: boolean;
   isSelected?: boolean;
@@ -42,7 +43,7 @@ interface AccountCardProps {
 }
 
 export function AccountCard({ 
-  id, region, alias, summonerId, username, password, isOwner = true, ownerNickname,
+  id, region, alias, summonerId, username, password, isOwner = true, isShared = false, ownerNickname,
   isSelectionMode = false, isSelected = false, onToggleSelect
 }: AccountCardProps) {
   const [showPassword, setShowPassword] = useState(false);

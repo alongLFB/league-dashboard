@@ -50,16 +50,27 @@ export async function getAccounts() {
     .where(whereClause)
     .orderBy(desc(accounts.createdAt));
 
-  return resultList.map(acc => ({
-    id: acc.id,
-    region: acc.region,
-    alias: acc.alias,
-    summonerId: acc.summonerId,
-    username: acc.username,
-    password: decrypt(acc.password),
-    isOwner: acc.ownerId === userId,
-    ownerNickname: acc.ownerNickname ?? 'Unknown'
-  }));
+  const allSharedRecords = await db
+    .select({ accountId: sharedAccounts.accountId })
+    .from(sharedAccounts);
+  const allSharedAccountIds = new Set(allSharedRecords.map(s => s.accountId));
+
+  return resultList.map(acc => {
+    const isOwner = acc.ownerId === userId;
+    const isShared = !isOwner || allSharedAccountIds.has(acc.id);
+
+    return {
+      id: acc.id,
+      region: acc.region,
+      alias: acc.alias,
+      summonerId: acc.summonerId,
+      username: acc.username,
+      password: decrypt(acc.password),
+      isOwner,
+      isShared,
+      ownerNickname: acc.ownerNickname ?? 'Unknown'
+    };
+  });
 }
 
 export async function addAccount(data: {
