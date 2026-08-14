@@ -48,6 +48,17 @@ export const accounts = sqliteTable("accounts", {
   ownerId: text("owner_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  soloTier: text("solo_tier"),
+  soloRank: text("solo_rank"),
+  soloLp: integer("solo_lp"),
+  soloWins: integer("solo_wins"),
+  soloLosses: integer("solo_losses"),
+  flexTier: text("flex_tier"),
+  flexRank: text("flex_rank"),
+  flexLp: integer("flex_lp"),
+  flexWins: integer("flex_wins"),
+  flexLosses: integer("flex_losses"),
+  rankUpdatedAt: text("rank_updated_at"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`(datetime('now'))`),

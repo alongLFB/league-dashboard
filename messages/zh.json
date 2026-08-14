@@ -153,7 +153,20 @@
     "sharedBy": "来自 {nickname} 的分享",
     "fieldCopied": "{field} 已复制",
     "shareBtn": "分享",
-    "decryptError": "[解密失败]"
+    "decryptError": "[解密失败]",
+    "rankTitle": "段位信息",
+    "soloDuo": "单双排位",
+    "flex": "灵活组排",
+    "unranked": "未定级",
+    "refreshRank": "更新段位",
+    "refreshing": "更新中...",
+    "lastUpdated": "上次查询",
+    "neverUpdated": "未查询",
+    "apiKeyMissing": "未在 .env 中配置 RIOT_API_KEY",
+    "apiKeyInvalid": "RIOT_API_KEY 无效或已过期",
+    "summonerNotFound": "未查询到该召唤师",
+    "rankUpdateSuccess": "段位已更新",
+    "rankUpdateFailed": "段位更新失败"
   },
   "Toast": {
     "added": "账号添加成功",

@@ -153,7 +153,20 @@
     "sharedBy": "Shared by {nickname}",
     "fieldCopied": "{field} copied",
     "shareBtn": "Share",
-    "decryptError": "[Decryption Failed]"
+    "decryptError": "[Decryption Failed]",
+    "rankTitle": "Ranked Stats",
+    "soloDuo": "Solo/Duo",
+    "flex": "Flex",
+    "unranked": "Unranked",
+    "refreshRank": "Refresh Rank",
+    "refreshing": "Refreshing...",
+    "lastUpdated": "Updated",
+    "neverUpdated": "Never",
+    "apiKeyMissing": "RIOT_API_KEY not configured in .env",
+    "apiKeyInvalid": "RIOT_API_KEY is invalid or expired",
+    "summonerNotFound": "Summoner not found",
+    "rankUpdateSuccess": "Rank updated successfully",
+    "rankUpdateFailed": "Failed to update rank"
   },
   "Toast": {
     "added": "Account added successfully",

@@ -8,6 +8,8 @@ import { revalidatePath } from 'next/cache';
 import { decryptSession } from '@/lib/session';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { fetchSummonerRank } from '@/lib/riot';
+import { ensureRankColumns } from '@/lib/db/ensureColumns';
 
 async function requireAuth() {
   const cookieStore = await cookies();
@@ -21,6 +23,7 @@ async function requireAuth() {
 
 export async function getAccounts() {
   const userId = await requireAuth();
+  await ensureRankColumns();
   
   const shared = await db
     .select({ accountId: sharedAccounts.accountId })
@@ -42,6 +45,17 @@ export async function getAccounts() {
       username: accounts.username,
       password: accounts.password,
       ownerId: accounts.ownerId,
+      soloTier: accounts.soloTier,
+      soloRank: accounts.soloRank,
+      soloLp: accounts.soloLp,
+      soloWins: accounts.soloWins,
+      soloLosses: accounts.soloLosses,
+      flexTier: accounts.flexTier,
+      flexRank: accounts.flexRank,
+      flexLp: accounts.flexLp,
+      flexWins: accounts.flexWins,
+      flexLosses: accounts.flexLosses,
+      rankUpdatedAt: accounts.rankUpdatedAt,
       createdAt: accounts.createdAt,
       ownerNickname: users.nickname,
     })
@@ -68,7 +82,18 @@ export async function getAccounts() {
       password: decrypt(acc.password),
       isOwner,
       isShared,
-      ownerNickname: acc.ownerNickname ?? 'Unknown'
+      ownerNickname: acc.ownerNickname ?? 'Unknown',
+      soloTier: acc.soloTier,
+      soloRank: acc.soloRank,
+      soloLp: acc.soloLp,
+      soloWins: acc.soloWins,
+      soloLosses: acc.soloLosses,
+      flexTier: acc.flexTier,
+      flexRank: acc.flexRank,
+      flexLp: acc.flexLp,
+      flexWins: acc.flexWins,
+      flexLosses: acc.flexLosses,
+      rankUpdatedAt: acc.rankUpdatedAt,
     };
   });
 }
@@ -81,6 +106,7 @@ export async function addAccount(data: {
   password: string;
 }) {
   const userId = await requireAuth();
+  await ensureRankColumns();
   
   const encryptedPassword = encrypt(data.password);
   
@@ -149,3 +175,64 @@ export async function updateAccount(id: string, data: {
   
   revalidatePath('/');
 }
+
+export async function refreshAccountRank(id: string) {
+  const userId = await requireAuth();
+  await ensureRankColumns();
+
+  const [account] = await db
+    .select()
+    .from(accounts)
+    .where(eq(accounts.id, id));
+
+  if (!account) {
+    return { success: false, error: 'ACCOUNT_NOT_FOUND' };
+  }
+
+  // Check permission: must be owner or shared with user
+  if (account.ownerId !== userId) {
+    const [shared] = await db
+      .select()
+      .from(sharedAccounts)
+      .where(eq(sharedAccounts.accountId, id));
+    if (!shared || shared.userId !== userId) {
+      return { success: false, error: 'UNAUTHORIZED' };
+    }
+  }
+
+  const rankResult = await fetchSummonerRank(account.region, account.summonerId);
+
+  if (!rankResult.success) {
+    return rankResult;
+  }
+
+  const nowIso = rankResult.updatedAt || new Date().toISOString();
+
+  await db
+    .update(accounts)
+    .set({
+      soloTier: rankResult.solo?.tier ?? null,
+      soloRank: rankResult.solo?.rank ?? null,
+      soloLp: rankResult.solo?.lp ?? null,
+      soloWins: rankResult.solo?.wins ?? null,
+      soloLosses: rankResult.solo?.losses ?? null,
+      flexTier: rankResult.flex?.tier ?? null,
+      flexRank: rankResult.flex?.rank ?? null,
+      flexLp: rankResult.flex?.lp ?? null,
+      flexWins: rankResult.flex?.wins ?? null,
+      flexLosses: rankResult.flex?.losses ?? null,
+      rankUpdatedAt: nowIso,
+      updatedAt: nowIso,
+    })
+    .where(eq(accounts.id, id));
+
+  revalidatePath('/');
+
+  return {
+    success: true,
+    solo: rankResult.solo,
+    flex: rankResult.flex,
+    updatedAt: nowIso,
+  };
+}
+
