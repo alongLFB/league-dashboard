@@ -15,12 +15,16 @@ This dashboard is a minimalist, elegant, and highly secure multi-account managem
    - Passwords are strictly masked as `••••••••`. Clicking directly on them, even while masked, accurately copies the true plaintext password.
    - Built-in ultra-smooth feedback animations and top Toast notifications when clicking "Copy" or "Share".
 
-3. **Military-Grade Data Protection**
+3. **Live Ranked Stats Tracking (Riot Games API)**
+   - Deeply integrated with official Riot Games API to automatically fetch and display the latest Solo/Duo and Flex ranks, division, LP, wins, and losses by Riot ID.
+   - Supports one-click live refresh per card as well as CLI batch synchronization, with rank data persisted in Cloudflare D1 database.
+
+4. **Military-Grade Data Protection**
    - Utilizes Node.js native `crypto` module with the `AES-256-GCM` algorithm for two-way encryption.
    - No plaintext LoL passwords are saved in the database; only the `IV:Cipher:AuthTag` combination ciphertext is stored.
    - As long as the `ENCRYPTION_KEY` is kept safe, attackers will only see meaningless gibberish even if the database file is accidentally leaked.
 
-4. **Full-Stack Internationalization (i18n)**
+5. **Full-Stack Internationalization (i18n)**
    - Natively integrated with `next-intl` for seamless hot-switching between English and Chinese.
    - Smart IP Detection: The system uses Edge computing nodes to automatically switch to Chinese for visitors with specific IPs (CN/TW/HK/MO).
 
@@ -57,6 +61,9 @@ PORT="3021"
 CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
 CLOUDFLARE_D1_DATABASE_ID="your-cloudflare-d1-database-id"
 CLOUDFLARE_API_TOKEN="your-cloudflare-api-token"
+
+# Riot Games Developer API Key (used for live summoner ranked stats lookup)
+RIOT_API_KEY="RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
 
 ### 2. Local Development
@@ -68,6 +75,9 @@ npm install
 
 # Start development server
 npm run dev
+
+# (Optional) Batch synchronize latest ranked stats for all accounts to database
+npm run rank:sync
 ```
 
 ### 3. Docker Container Deployment

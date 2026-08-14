@@ -15,12 +15,16 @@
    - 密码严格遮罩 `••••••••`，即使处于遮罩状态下直接点击，亦能精准复制出真实的明文密码。
    - 点击“复制”或“分享”时，内置极致平滑的反馈动效和顶部 Toast 通知。
 
-3. **国防级数据落地保护**
+3. **实时段位追踪 (Riot API 对接)**
+   - 深度对接拳头官方 Riot Games API，根据召唤师 Riot ID 自动获取并展示单双排位与灵活组排最新段位、胜点（LP）及胜负场次。
+   - 支持卡片级单账号一键实时刷新，并支持命令行批量全量同步，数据自动持久化缓存至 Cloudflare D1 数据库。
+
+4. **国防级数据落地保护**
    - 采用 `Node.js` 原生 `crypto` 模块的 `AES-256-GCM` 算法进行双向加密。
    - 数据库中不保存任何明文 LOL 密码，只有 `IV:Cipher:AuthTag` 组合密文落地。
    - 只要对应的 `ENCRYPTION_KEY` 妥善保存，即使数据库文件意外泄露，攻击者也只能看见无意义的乱码。
 
-4. **全链路国际化 (i18n)**
+5. **全链路国际化 (i18n)**
    - 原生集成 `next-intl`，支持中英文双语无缝热切换。
    - 智能 IP 检测：系统能够通过 Edge 边缘计算节点，根据访客 IP（CN/TW/HK/MO）自动为您切换至中文模式。
 
@@ -57,6 +61,9 @@ PORT="3021"
 CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
 CLOUDFLARE_D1_DATABASE_ID="your-cloudflare-d1-database-id"
 CLOUDFLARE_API_TOKEN="your-cloudflare-api-token"
+
+# Riot Games 开发者 API Key (用于查询召唤师最新排位段位)
+RIOT_API_KEY="RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
 
 ### 2. 本地开发与启动
@@ -68,6 +75,9 @@ npm install
 
 # 启动开发服务器
 npm run dev
+
+# (可选) 批量同步所有账号的最新段位数据至数据库
+npm run rank:sync
 ```
 
 ### 3. Docker 容器部署

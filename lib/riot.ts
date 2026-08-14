@@ -54,9 +54,9 @@ const REGION_ROUTING: Record<string, RegionRoute> = {
   las: { platform: 'la2', regional: 'americas' },
   la2: { platform: 'la2', regional: 'americas' },
   // OCE
-  oce: { platform: 'oc1', regional: 'sea' },
-  oceania: { platform: 'oc1', regional: 'sea' },
-  oc1: { platform: 'oc1', regional: 'sea' },
+  oce: { platform: 'oc1', regional: 'americas' },
+  oceania: { platform: 'oc1', regional: 'americas' },
+  oc1: { platform: 'oc1', regional: 'americas' },
   // RU
   ru: { platform: 'ru', regional: 'europe' },
   russia: { platform: 'ru', regional: 'europe' },
@@ -70,25 +70,31 @@ const REGION_ROUTING: Record<string, RegionRoute> = {
   'middle east': { platform: 'me1', regional: 'europe' },
   me1: { platform: 'me1', regional: 'europe' },
   // TW
-  tw: { platform: 'tw2', regional: 'sea' },
-  taiwan: { platform: 'tw2', regional: 'sea' },
-  tw2: { platform: 'tw2', regional: 'sea' },
+  tw: { platform: 'tw2', regional: 'asia' },
+  taiwan: { platform: 'tw2', regional: 'asia' },
+  tw2: { platform: 'tw2', regional: 'asia' },
   // VN
-  vn: { platform: 'vn2', regional: 'sea' },
-  vietnam: { platform: 'vn2', regional: 'sea' },
-  vn2: { platform: 'vn2', regional: 'sea' },
+  vn: { platform: 'vn2', regional: 'asia' },
+  vietnam: { platform: 'vn2', regional: 'asia' },
+  vn2: { platform: 'vn2', regional: 'asia' },
   // SEA
-  sea: { platform: 'sg2', regional: 'sea' },
-  'southeast asia': { platform: 'sg2', regional: 'sea' },
-  sg2: { platform: 'sg2', regional: 'sea' },
+  sea: { platform: 'sg2', regional: 'asia' },
+  'southeast asia': { platform: 'sg2', regional: 'asia' },
+  sg2: { platform: 'sg2', regional: 'asia' },
   // PBE
   pbe: { platform: 'pbe1', regional: 'americas' },
   'public beta': { platform: 'pbe1', regional: 'americas' },
   pbe1: { platform: 'pbe1', regional: 'americas' },
 };
 
+function cleanRiotString(str: string): string {
+  return (str || '')
+    .replace(/[\u200B-\u200D\uFEFF\u2060-\u206F\u202A-\u202E\u200E\u200F\u00A0]/g, '')
+    .trim();
+}
+
 function getRouting(regionStr: string): RegionRoute {
-  const key = (regionStr || '').trim().toLowerCase();
+  const key = cleanRiotString(regionStr).toLowerCase();
   return REGION_ROUTING[key] || { platform: 'na1', regional: 'americas' };
 }
 
@@ -130,7 +136,7 @@ export async function fetchSummonerRank(
   region: string,
   summonerRiotId: string
 ): Promise<SummonerRankResult> {
-  const apiKey = process.env.RIOT_API_KEY;
+  const apiKey = (process.env.RIOT_API_KEY || '').trim();
   if (!apiKey) {
     return {
       success: false,
@@ -138,15 +144,17 @@ export async function fetchSummonerRank(
     };
   }
 
-  if (!summonerRiotId || !summonerRiotId.includes('#')) {
+  const cleanedRiotId = cleanRiotString(summonerRiotId);
+  if (!cleanedRiotId || !cleanedRiotId.includes('#')) {
     return {
       success: false,
       error: 'INVALID_RIOT_ID',
     };
   }
 
-  const [gameName, ...tagParts] = summonerRiotId.split('#');
-  const tagLine = tagParts.join('#');
+  const [rawGameName, ...tagParts] = cleanedRiotId.split('#');
+  const gameName = cleanRiotString(rawGameName);
+  const tagLine = cleanRiotString(tagParts.join('#'));
 
   if (!gameName || !tagLine) {
     return {
@@ -156,18 +164,20 @@ export async function fetchSummonerRank(
   }
 
   const route = getRouting(region);
+  // Account-v1 is only hosted on americas, europe, asia
   const regionalClusters = Array.from(
-    new Set([route.regional, 'americas', 'europe', 'asia', 'sea'])
+    new Set([route.regional, 'asia', 'europe', 'americas'])
   );
 
   let puuid: string | null = null;
+  let authErrorCount = 0;
 
-  // Step 1: Query Account-v1 to find PUUID
+  // Step 1: Query Account-v1 across valid regional clusters
   for (const cluster of regionalClusters) {
     try {
       const url = `https://${cluster}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(
-        gameName.trim()
-      )}/${encodeURIComponent(tagLine.trim())}`;
+        gameName
+      )}/${encodeURIComponent(tagLine)}`;
 
       const res = await fetch(url, {
         headers: { 'X-Riot-Token': apiKey },
@@ -180,11 +190,8 @@ export async function fetchSummonerRank(
           puuid = data.puuid;
           break;
         }
-      } else if (res.status === 403 || res.status === 401) {
-        return {
-          success: false,
-          error: 'RIOT_API_KEY_INVALID',
-        };
+      } else if (res.status === 401 || res.status === 403) {
+        authErrorCount++;
       }
     } catch {
       // Continue trying other clusters
@@ -192,6 +199,12 @@ export async function fetchSummonerRank(
   }
 
   if (!puuid) {
+    if (authErrorCount >= regionalClusters.length) {
+      return {
+        success: false,
+        error: 'RIOT_API_KEY_INVALID',
+      };
+    }
     return {
       success: false,
       error: 'SUMMONER_NOT_FOUND',
@@ -237,7 +250,7 @@ export async function fetchSummonerRank(
     }
   }
 
-  // Fallback: try /lol/league/v4/entries/by-puuid/{puuid} if entries are still empty
+  // Fallback: try /lol/league/v4/entries/by-puuid/{puuid}
   if (!entries || entries.length === 0) {
     try {
       const leaguePuuidUrl = `https://${route.platform}.api.riotgames.com/lol/league/v4/entries/by-puuid/${puuid}`;

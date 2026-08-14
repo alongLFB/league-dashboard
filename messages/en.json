@@ -162,11 +162,25 @@
     "refreshing": "Refreshing...",
     "lastUpdated": "Updated",
     "neverUpdated": "Never",
+    "justNow": "Just now",
     "apiKeyMissing": "RIOT_API_KEY not configured in .env",
     "apiKeyInvalid": "RIOT_API_KEY is invalid or expired",
     "summonerNotFound": "Summoner not found",
     "rankUpdateSuccess": "Rank updated successfully",
     "rankUpdateFailed": "Failed to update rank"
+  },
+  "Tiers": {
+    "IRON": "Iron",
+    "BRONZE": "Bronze",
+    "SILVER": "Silver",
+    "GOLD": "Gold",
+    "PLATINUM": "Platinum",
+    "EMERALD": "Emerald",
+    "DIAMOND": "Diamond",
+    "MASTER": "Master",
+    "GRANDMASTER": "Grandmaster",
+    "CHALLENGER": "Challenger",
+    "UNRANKED": "Unranked"
   },
   "Toast": {
     "added": "Account added successfully",

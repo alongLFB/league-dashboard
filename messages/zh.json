@@ -162,11 +162,25 @@
     "refreshing": "更新中...",
     "lastUpdated": "上次查询",
     "neverUpdated": "未查询",
+    "justNow": "刚刚",
     "apiKeyMissing": "未在 .env 中配置 RIOT_API_KEY",
     "apiKeyInvalid": "RIOT_API_KEY 无效或已过期",
     "summonerNotFound": "未查询到该召唤师",
     "rankUpdateSuccess": "段位已更新",
     "rankUpdateFailed": "段位更新失败"
+  },
+  "Tiers": {
+    "IRON": "黑铁",
+    "BRONZE": "黄铜",
+    "SILVER": "白银",
+    "GOLD": "黄金",
+    "PLATINUM": "铂金",
+    "EMERALD": "翡翠",
+    "DIAMOND": "钻石",
+    "MASTER": "大师",
+    "GRANDMASTER": "宗师",
+    "CHALLENGER": "王者",
+    "UNRANKED": "未定级"
   },
   "Toast": {
     "added": "账号添加成功",

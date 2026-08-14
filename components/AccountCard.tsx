@@ -124,19 +124,7 @@ function getTierStyle(tier?: string | null) {
   }
 }
 
-function formatRankDisplay(
-  tier?: string | null,
-  rank?: string | null,
-  lp?: number | null,
-  unrankedText = 'Unranked'
-) {
-  if (!tier) return unrankedText;
-  const t = tier.toUpperCase();
-  if (['MASTER', 'GRANDMASTER', 'CHALLENGER'].includes(t)) {
-    return `${tier} ${lp !== null && lp !== undefined ? `${lp} LP` : ''}`.trim();
-  }
-  return `${tier} ${rank || ''} ${lp !== null && lp !== undefined ? `${lp} LP` : ''}`.trim();
-}
+const VALID_TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER', 'UNRANKED'] as const;
 
 export function AccountCard({ 
   id, region, alias, summonerId, username, password, isOwner = true, isShared = false, ownerNickname,
@@ -149,9 +137,24 @@ export function AccountCard({
   const [copiedField, setCopiedField] = useState<string | null>(null);
   
   const tCard = useTranslations('Card');
+  const tTier = useTranslations('Tiers');
   const tForm = useTranslations('Form');
   const tToast = useTranslations('Toast');
   const tVal = useTranslations('Validation');
+
+  const formatRankDisplay = (
+    tier?: string | null,
+    rank?: string | null,
+    lp?: number | null,
+  ) => {
+    if (!tier) return tTier('UNRANKED');
+    const t = tier.toUpperCase();
+    const localizedTier = (VALID_TIERS as readonly string[]).includes(t) ? tTier(t as any) : tier;
+    if (['MASTER', 'GRANDMASTER', 'CHALLENGER'].includes(t)) {
+      return `${localizedTier} ${lp !== null && lp !== undefined ? `${lp} LP` : ''}`.trim();
+    }
+    return `${localizedTier} ${rank || ''} ${lp !== null && lp !== undefined ? `${lp} LP` : ''}`.trim();
+  };
 
   // Rank States
   const [soloTierState, setSoloTierState] = useState(soloTier);
@@ -257,7 +260,7 @@ export function AccountCard({
       const diffHours = Math.floor(diffMinutes / 60);
       const diffDays = Math.floor(diffHours / 24);
 
-      if (diffMinutes < 1) return '刚刚';
+      if (diffMinutes < 1) return tCard('justNow');
       if (diffMinutes < 60) return `${diffMinutes}m`;
       if (diffHours < 24) return `${diffHours}h`;
       if (diffDays < 7) return `${diffDays}d`;
@@ -483,7 +486,7 @@ export function AccountCard({
                       <span className={cn("w-1.5 h-1.5 rounded-full", soloColor.dot)} />
                     </div>
                     <div className="text-xs font-bold font-mono truncate">
-                      {formatRankDisplay(soloTierState, soloRankState, soloLpState, tCard('unranked'))}
+                      {formatRankDisplay(soloTierState, soloRankState, soloLpState)}
                     </div>
                     {soloWinsState !== null && soloWinsState !== undefined && (
                       <div className="text-[9px] opacity-60 font-mono">
@@ -499,7 +502,7 @@ export function AccountCard({
                       <span className={cn("w-1.5 h-1.5 rounded-full", flexColor.dot)} />
                     </div>
                     <div className="text-xs font-bold font-mono truncate">
-                      {formatRankDisplay(flexTierState, flexRankState, flexLpState, tCard('unranked'))}
+                      {formatRankDisplay(flexTierState, flexRankState, flexLpState)}
                     </div>
                     {flexWinsState !== null && flexWinsState !== undefined && (
                       <div className="text-[9px] opacity-60 font-mono">
