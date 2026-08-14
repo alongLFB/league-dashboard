@@ -110,10 +110,9 @@ export default function LoginPage() {
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={loading}
                   placeholder={t('usernamePlaceholder')}
-                  className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
+                  className="w-full bg-transparent border-b border-gray-800 outline-none py-2.5 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
                   autoFocus
                   spellCheck={false}
-                  autoComplete="off"
                 />
               </div>
               <div className="relative group">
@@ -124,14 +123,13 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
                   placeholder={t('passwordPlaceholder')}
-                  className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
+                  className="w-full bg-transparent border-b border-gray-800 outline-none py-2.5 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
                   spellCheck={false}
-                  autoComplete="off"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2 top-0 text-gray-500 hover:text-purple-400 transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-purple-400 transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -178,10 +176,9 @@ export default function LoginPage() {
                     onChange={(e) => setResetEmail(e.target.value)}
                     disabled={loading}
                     placeholder={t('emailPlaceholder')}
-                    className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
+                    className="w-full bg-transparent border-b border-gray-800 outline-none py-2.5 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
                     autoFocus
                     spellCheck={false}
-                    autoComplete="off"
                   />
                 </div>
                 <button 
@@ -201,9 +198,8 @@ export default function LoginPage() {
                   onChange={(e) => setResetCode(e.target.value)}
                   disabled={loading}
                   placeholder={t('codePlaceholder')}
-                  className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
+                  className="w-full bg-transparent border-b border-gray-800 outline-none py-2.5 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
                   spellCheck={false}
-                  autoComplete="off"
                 />
               </div>
               <div className="relative group">
@@ -214,14 +210,13 @@ export default function LoginPage() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   disabled={loading}
                   placeholder={t('passwordPlaceholder')}
-                  className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
+                  className="w-full bg-transparent border-b border-gray-800 outline-none py-2.5 text-gray-200 text-center tracking-[0.1em] text-sm transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-transparent"
                   spellCheck={false}
-                  autoComplete="off"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-2 top-0 text-gray-500 hover:text-purple-400 transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-purple-400 transition-colors"
                 >
                   {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>

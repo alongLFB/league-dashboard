@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+/* 浏览器自动填充 (Autofill) 适配暗色主题 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #0a0a0c inset !important;
+  -webkit-text-fill-color: #e5e7eb !important;
+  caret-color: #e5e7eb !important;
+  transition: background-color 50000s ease-in-out 0s;
+}

@@ -85,7 +85,7 @@ export default function RegisterPage() {
               onChange={(e) => setFormData({...formData, email: e.target.value})}
               disabled={loading}
               placeholder={t('email')}
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
+              className="w-full bg-transparent border-b border-gray-800 outline-none py-2.5 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
             />
           </div>
           
@@ -98,7 +98,7 @@ export default function RegisterPage() {
                 onChange={(e) => setFormData({...formData, code: e.target.value})}
                 disabled={loading}
                 placeholder={t('code')}
-                className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
+                className="w-full bg-transparent border-b border-gray-800 outline-none py-2.5 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
               />
             </div>
             <button
@@ -119,7 +119,7 @@ export default function RegisterPage() {
               onChange={(e) => setFormData({...formData, nickname: e.target.value})}
               disabled={loading}
               placeholder={t('nickname')}
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
+              className="w-full bg-transparent border-b border-gray-800 outline-none py-2.5 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
             />
           </div>
 
@@ -131,7 +131,7 @@ export default function RegisterPage() {
               onChange={(e) => setFormData({...formData, username: e.target.value})}
               disabled={loading}
               placeholder={t('username')}
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
+              className="w-full bg-transparent border-b border-gray-800 outline-none py-2.5 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
             />
           </div>
 
@@ -143,12 +143,12 @@ export default function RegisterPage() {
               onChange={(e) => setFormData({...formData, password: e.target.value})}
               disabled={loading}
               placeholder={t('password')}
-              className="w-full bg-transparent border-b border-gray-800 outline-none pb-3 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
+              className="w-full bg-transparent border-b border-gray-800 outline-none py-2.5 text-gray-200 text-center tracking-[0.1em] text-xs transition-all duration-500 placeholder:text-gray-500 disabled:opacity-50 focus:border-green-500"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-0 text-gray-500 hover:text-green-400 transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-green-400 transition-colors"
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
