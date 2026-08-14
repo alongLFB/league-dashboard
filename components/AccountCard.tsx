@@ -463,9 +463,12 @@ export function AccountCard({
                     <span>{tCard('rankTitle')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-500 font-mono">
-                      {formatTime(rankUpdatedAtState)}
-                    </span>
+                    <div className="flex items-center gap-1 text-[10px] text-gray-500">
+                      <span>{tCard('lastUpdated')}</span>
+                      <span className="font-mono text-gray-400">
+                        {formatTime(rankUpdatedAtState)}
+                      </span>
+                    </div>
                     <button
                       type="button"
                       onClick={handleRefreshRank}
