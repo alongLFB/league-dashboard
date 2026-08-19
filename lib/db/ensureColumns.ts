@@ -32,9 +32,10 @@ export async function ensureRankColumns() {
 
   const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/query`;
 
-  for (const col of columns) {
-    try {
-      await fetch(url, {
+  // Run all ALTER TABLE queries concurrently in parallel to avoid sequential network roundtrips
+  await Promise.allSettled(
+    columns.map((col) =>
+      fetch(url, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiToken}`,
@@ -45,11 +46,9 @@ export async function ensureRankColumns() {
           params: [],
         }),
         cache: 'no-store',
-      });
-    } catch {
-      // Column may already exist or network error; safely ignore
-    }
-  }
+      })
+    )
+  );
 }
 
 let userGoogleMigrationAttempted = false;
@@ -74,9 +73,10 @@ export async function ensureUserGoogleColumns() {
     'CREATE UNIQUE INDEX IF NOT EXISTS users_google_id_idx ON users(google_id);',
   ];
 
-  for (const sql of statements) {
-    try {
-      await fetch(url, {
+  // Run statements concurrently
+  await Promise.allSettled(
+    statements.map((sql) =>
+      fetch(url, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiToken}`,
@@ -87,10 +87,9 @@ export async function ensureUserGoogleColumns() {
           params: [],
         }),
         cache: 'no-store',
-      });
-    } catch {
-      // Safely ignore if column/index already exists
-    }
-  }
+      })
+    )
+  );
 }
+
 
