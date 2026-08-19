@@ -17,7 +17,7 @@ jobs:
       - name: Prepare Environment Secret
         id: env_prep
         env:
-          RAW_ENV: ${{ secrets.DOT_ENV || secrets.ENV_FILE || secrets.APP_ENV }}
+          RAW_ENV: ${{ secrets.ENV_FILE }}
         run: |
           if [ -n "$RAW_ENV" ]; then
             B64=$(printf "%s" "$RAW_ENV" | base64 -w 0)
