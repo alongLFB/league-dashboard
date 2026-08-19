@@ -93,13 +93,26 @@
     "codeSent": "验证码已发送至您的邮箱",
     "sendCodeFailed": "验证码发送失败",
     "enterNewEmail": "请输入新邮箱",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "googleBinding": "Google 账号绑定",
+    "googleBound": "已绑定 Google 账号",
+    "googleNotBound": "未绑定 Google 账号",
+    "bindGoogle": "绑定 Google 账号",
+    "unbindGoogle": "解除绑定",
+    "unbindConfirm": "确定要解除该 Google 账号绑定吗？",
+    "unbindSuccess": "已成功解除 Google 账号绑定",
+    "unbindFailed": "解除绑定失败",
+    "googleBoundSuccess": "Google 账号绑定成功！",
+    "googleAlreadyBound": "该 Google 账号已被其他用户绑定",
+    "googleAuthFailed": "Google 授权失败或已取消"
   },
   "Login": {
     "title": "Taste / League",
     "usernamePlaceholder": "输入账号或邮箱",
     "passwordPlaceholder": "输入密码",
     "loginBtn": "登录",
+    "or": "或",
+    "loginWithGoogle": "使用 Google 登录",
     "noAccount": "还没有账号？",
     "createAccount": "创建账号",
     "forgotPassword": "忘记密码？",
@@ -113,7 +126,9 @@
     "codeSent": "验证码已发送至您的邮箱",
     "sendCodeFailed": "验证码发送失败",
     "resetSuccess": "密码重置成功",
-    "resetFailed": "密码重置失败"
+    "resetFailed": "密码重置失败",
+    "googleAuthFailed": "Google 授权失败或已取消",
+    "googleAlreadyBound": "该 Google 账号已被其他用户绑定"
   },
   "Register": {
     "title": "创建账号",
@@ -124,6 +139,8 @@
     "password": "密码",
     "sendCode": "发送",
     "registerBtn": "注册",
+    "or": "或",
+    "registerWithGoogle": "使用 Google 快速注册 / 登录",
     "backToLogin": "返回登录",
     "enterEmailFirst": "请先输入您的邮箱",
     "codeSent": "验证码已发送至您的邮箱",

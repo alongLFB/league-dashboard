@@ -9,6 +9,8 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import bcrypt from 'bcryptjs';
 
+import { ensureUserGoogleColumns } from '@/lib/db/ensureColumns';
+
 async function requireAuth() {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('admin_session')?.value;
@@ -21,11 +23,15 @@ async function requireAuth() {
 
 export async function getUserProfile() {
   const session = await requireAuth();
+  await ensureUserGoogleColumns();
+
   const [user] = await db
     .select({
       username: users.username,
       nickname: users.nickname,
       email: users.email,
+      googleId: users.googleId,
+      googleEmail: users.googleEmail,
       createdAt: users.createdAt,
     })
     .from(users)
@@ -35,8 +41,38 @@ export async function getUserProfile() {
     return { success: false, error: 'User not found' };
   }
   
-  return { success: true, user };
+  return { 
+    success: true, 
+    user: {
+      ...user,
+      isGoogleBound: !!user.googleId,
+    } 
+  };
 }
+
+export async function unbindGoogleAccount() {
+  const session = await requireAuth();
+  const userId = session.userId as string;
+
+  try {
+    await ensureUserGoogleColumns();
+
+    await db
+      .update(users)
+      .set({
+        googleId: null,
+        googleEmail: null,
+      })
+      .where(eq(users.id, userId));
+
+    revalidatePath('/profile');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to unbind Google account:', error);
+    return { success: false, error: 'Failed to unbind Google account' };
+  }
+}
+
 
 export async function updateNickname(newNickname: string) {
   const session = await requireAuth();

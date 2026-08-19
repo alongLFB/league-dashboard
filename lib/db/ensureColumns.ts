@@ -51,3 +51,46 @@ export async function ensureRankColumns() {
     }
   }
 }
+
+let userGoogleMigrationAttempted = false;
+
+export async function ensureUserGoogleColumns() {
+  if (userGoogleMigrationAttempted) return;
+  userGoogleMigrationAttempted = true;
+
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+
+  if (!accountId || !databaseId || !apiToken) {
+    return;
+  }
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/query`;
+
+  const statements = [
+    'ALTER TABLE users ADD COLUMN google_id TEXT;',
+    'ALTER TABLE users ADD COLUMN google_email TEXT;',
+    'CREATE UNIQUE INDEX IF NOT EXISTS users_google_id_idx ON users(google_id);',
+  ];
+
+  for (const sql of statements) {
+    try {
+      await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sql,
+          params: [],
+        }),
+        cache: 'no-store',
+      });
+    } catch {
+      // Safely ignore if column/index already exists
+    }
+  }
+}
+

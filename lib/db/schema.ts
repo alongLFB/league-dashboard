@@ -10,6 +10,8 @@ export const users = sqliteTable("users", {
   passwordHash: text("password_hash").notNull(),
   nickname: text("nickname").notNull(),
   email: text("email").notNull().unique(),
+  googleId: text("google_id").unique(),
+  googleEmail: text("google_email"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`(datetime('now'))`),

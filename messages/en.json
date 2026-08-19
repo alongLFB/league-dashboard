@@ -93,13 +93,26 @@
     "codeSent": "Code sent to your email",
     "sendCodeFailed": "Failed to send code",
     "enterNewEmail": "Please enter a new email",
-    "logout": "Log out"
+    "logout": "Log out",
+    "googleBinding": "Google Account Binding",
+    "googleBound": "Google Account Linked",
+    "googleNotBound": "No Google Account Linked",
+    "bindGoogle": "Link Google Account",
+    "unbindGoogle": "Unlink",
+    "unbindConfirm": "Are you sure you want to unlink your Google account?",
+    "unbindSuccess": "Google account unlinked successfully",
+    "unbindFailed": "Failed to unlink Google account",
+    "googleBoundSuccess": "Google account linked successfully!",
+    "googleAlreadyBound": "This Google account is already linked to another user",
+    "googleAuthFailed": "Google authentication failed or was cancelled"
   },
   "Login": {
     "title": "Taste / League",
     "usernamePlaceholder": "USERNAME OR EMAIL",
     "passwordPlaceholder": "PASSWORD",
     "loginBtn": "Login",
+    "or": "OR",
+    "loginWithGoogle": "Continue with Google",
     "noAccount": "Don't have an account?",
     "createAccount": "Create an Account",
     "forgotPassword": "Forgot Password?",
@@ -113,7 +126,9 @@
     "codeSent": "Code sent to your email",
     "sendCodeFailed": "Failed to send code",
     "resetSuccess": "Password reset successful",
-    "resetFailed": "Failed to reset password"
+    "resetFailed": "Failed to reset password",
+    "googleAuthFailed": "Google authentication failed or was cancelled",
+    "googleAlreadyBound": "This Google account is already linked to another user"
   },
   "Register": {
     "title": "Create Account",
@@ -124,6 +139,8 @@
     "password": "PASSWORD",
     "sendCode": "Send",
     "registerBtn": "Register",
+    "or": "OR",
+    "registerWithGoogle": "Sign up / Login with Google",
     "backToLogin": "Back to Login",
     "enterEmailFirst": "Please enter your email first",
     "codeSent": "Verification code sent to your email",

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { login, sendPasswordResetCode, resetPasswordWithCode } from '@/app/actions/auth';
 import { useRouter, Link } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { GoogleIcon } from '@/components/GoogleIcon';
 import { toast } from 'sonner';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
@@ -26,7 +27,23 @@ export default function LoginPage() {
   const [countdown, setCountdown] = useState(0);
 
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations('Login');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    if (error) {
+      if (error === 'google_auth_failed') {
+        toast.error(t('googleAuthFailed'));
+      } else if (error === 'google_already_bound') {
+        toast.error(t('googleAlreadyBound'));
+      } else {
+        toast.error(error);
+      }
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [t]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,9 +115,25 @@ export default function LoginPage() {
       <div className="w-full max-w-sm px-8 relative z-10">
         {view === 'login' ? (
           <>
-            <h1 className="text-center text-xs font-black tracking-[0.4em] mb-12 uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+            <h1 className="text-center text-xs font-black tracking-[0.4em] mb-8 uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
               {t('title')}
             </h1>
+
+            {/* Google Login Button */}
+            <a
+              href={`/api/auth/google?locale=${locale}`}
+              className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-white/[0.04] hover:bg-white/[0.08] border border-gray-800 hover:border-gray-700 rounded-lg transition-all duration-300 text-xs tracking-wider font-semibold text-gray-200 group shadow-sm hover:shadow-purple-500/5 mb-6"
+            >
+              <GoogleIcon className="w-4 h-4 transition-transform group-hover:scale-110 duration-300" />
+              <span>{t('loginWithGoogle')}</span>
+            </a>
+
+            <div className="relative flex items-center justify-center mb-6">
+              <div className="border-t border-gray-800/80 w-full" />
+              <span className="bg-[#0a0a0c] px-3 text-[10px] uppercase tracking-widest text-gray-600 font-bold">{t('or')}</span>
+              <div className="border-t border-gray-800/80 w-full" />
+            </div>
+
             <form onSubmit={handleLoginSubmit} className="space-y-6">
               <div className="relative group">
                 <div className={`absolute -bottom-0.5 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-700 ease-out ${username ? 'w-full' : 'w-0 group-focus-within:w-full'}`} />

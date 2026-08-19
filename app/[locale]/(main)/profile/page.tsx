@@ -18,6 +18,9 @@ export default async function ProfilePage() {
     username: res.user.username,
     nickname: res.user.nickname,
     email: res.user.email,
+    googleId: res.user.googleId || null,
+    googleEmail: res.user.googleEmail || null,
+    isGoogleBound: !!res.user.googleId,
   };
 
   return (

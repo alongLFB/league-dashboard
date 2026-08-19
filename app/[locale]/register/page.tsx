@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { register, sendVerificationCode } from '@/app/actions/auth';
 import { useRouter, Link } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { GoogleIcon } from '@/components/GoogleIcon';
 import { toast } from 'sonner';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
@@ -22,6 +23,7 @@ export default function RegisterPage() {
   const [sendingCode, setSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations('Register');
 
   useEffect(() => {
@@ -73,9 +75,25 @@ export default function RegisterPage() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[400px] bg-gradient-to-b from-blue-900/20 to-green-900/10 blur-[100px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-sm px-8 relative z-10">
-        <h1 className="text-center text-xs font-black tracking-[0.4em] mb-12 uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">
+        <h1 className="text-center text-xs font-black tracking-[0.4em] mb-8 uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">
           {t('title')}
         </h1>
+
+        {/* Google Register Button */}
+        <a
+          href={`/api/auth/google?locale=${locale}`}
+          className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-white/[0.04] hover:bg-white/[0.08] border border-gray-800 hover:border-gray-700 rounded-lg transition-all duration-300 text-xs tracking-wider font-semibold text-gray-200 group shadow-sm hover:shadow-green-500/5 mb-6"
+        >
+          <GoogleIcon className="w-4 h-4 transition-transform group-hover:scale-110 duration-300" />
+          <span>{t('registerWithGoogle')}</span>
+        </a>
+
+        <div className="relative flex items-center justify-center mb-6">
+          <div className="border-t border-gray-800/80 w-full" />
+          <span className="bg-[#0a0a0c] px-3 text-[10px] uppercase tracking-widest text-gray-600 font-bold">{t('or')}</span>
+          <div className="border-t border-gray-800/80 w-full" />
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative group">
             <input

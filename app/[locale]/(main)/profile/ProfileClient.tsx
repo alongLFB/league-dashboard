@@ -1,26 +1,36 @@
 'use client';
 
-import { useState } from 'react';
-import { updateNickname, updateEmail, updatePassword } from '@/app/actions/user';
+import { useState, useEffect } from 'react';
+import { updateNickname, updateEmail, updatePassword, unbindGoogleAccount } from '@/app/actions/user';
 import { sendVerificationCode, sendPasswordResetCode, resetPasswordWithCode } from '@/app/actions/auth';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { toast } from 'sonner';
-import { Loader2, Mail, Lock, User as UserIcon, ShieldCheck } from 'lucide-react';
+import { Loader2, Mail, Lock, User as UserIcon } from 'lucide-react';
+import { GoogleIcon } from '@/components/GoogleIcon';
 
 interface ProfileClientProps {
   user: {
     username: string;
     nickname: string;
     email: string;
+    googleId?: string | null;
+    googleEmail?: string | null;
+    isGoogleBound?: boolean;
   };
 }
 
 export function ProfileClient({ user }: ProfileClientProps) {
   const t = useTranslations('Profile');
+  const locale = useLocale();
   
   // Nickname State
   const [nickname, setNickname] = useState(user.nickname);
   const [savingNickname, setSavingNickname] = useState(false);
+
+  // Google Account State
+  const [isGoogleBound, setIsGoogleBound] = useState(!!user.isGoogleBound);
+  const [googleEmail, setGoogleEmail] = useState(user.googleEmail || '');
+  const [unbindingGoogle, setUnbindingGoogle] = useState(false);
 
   // Password State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -39,6 +49,41 @@ export function ProfileClient({ user }: ProfileClientProps) {
   const [sendingCode, setSendingCode] = useState(false);
   const [savingEmail, setSavingEmail] = useState(false);
   const [countdown, setCountdown] = useState(0);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get('success');
+    const error = params.get('error');
+
+    if (success === 'google_bound') {
+      toast.success(t('googleBoundSuccess'));
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (error) {
+      if (error === 'google_already_bound') {
+        toast.error(t('googleAlreadyBound'));
+      } else if (error === 'google_auth_failed') {
+        toast.error(t('googleAuthFailed'));
+      } else {
+        toast.error(error);
+      }
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [t]);
+
+  const handleUnbindGoogle = async () => {
+    if (!confirm(t('unbindConfirm'))) return;
+    setUnbindingGoogle(true);
+    const res = await unbindGoogleAccount();
+    setUnbindingGoogle(false);
+    if (res.success) {
+      setIsGoogleBound(false);
+      setGoogleEmail('');
+      toast.success(t('unbindSuccess'));
+    } else {
+      toast.error(res.error || t('unbindFailed'));
+    }
+  };
+
 
   const handleUpdateNickname = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -365,6 +410,70 @@ export function ProfileClient({ user }: ProfileClientProps) {
               </div>
             </div>
           </form>
+        )}
+      </div>
+
+      {/* Google Account Section */}
+      <div className="bg-[#0d1117]/80 backdrop-blur-md border border-gray-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500/50 via-red-500/50 to-yellow-500/50" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-gray-800 flex items-center justify-center">
+              <GoogleIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-200">{t('googleBinding')}</h3>
+              <p className="text-xs text-gray-500">
+                {isGoogleBound ? t('googleBound') : t('googleNotBound')}
+              </p>
+            </div>
+          </div>
+          {isGoogleBound ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              {t('googleBound')}
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-800/80 border border-gray-700 text-gray-400 text-xs font-semibold rounded-full">
+              {t('googleNotBound')}
+            </span>
+          )}
+        </div>
+
+        {isGoogleBound ? (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs text-gray-500 uppercase tracking-widest mb-2">
+                {t('googleBinding')}
+              </label>
+              <div className="flex gap-4 items-center">
+                <input
+                  type="text"
+                  value={googleEmail || user.googleEmail || user.email}
+                  disabled
+                  className="flex-1 bg-gray-900/50 border border-gray-800 rounded-lg p-3 text-sm text-gray-300 outline-none cursor-not-allowed"
+                />
+                <button
+                  type="button"
+                  onClick={handleUnbindGoogle}
+                  disabled={unbindingGoogle}
+                  className="px-6 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors disabled:opacity-50 min-w-[120px] flex items-center justify-center"
+                >
+                  {unbindingGoogle ? <Loader2 size={14} className="animate-spin" /> : t('unbindGoogle')}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="pt-2">
+            <a
+              href={`/api/auth/google?mode=bind&locale=${locale}`}
+              className="inline-flex items-center gap-2.5 px-6 py-2.5 bg-white/[0.04] hover:bg-white/[0.08] border border-gray-800 hover:border-gray-700 text-gray-200 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm hover:shadow-purple-500/5"
+            >
+              <GoogleIcon className="w-4 h-4" />
+              <span>{t('bindGoogle')}</span>
+            </a>
+          </div>
         )}
       </div>
 
