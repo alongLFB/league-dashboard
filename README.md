@@ -57,6 +57,13 @@ SMTP_FROM="admin@your-domain.com" # (可选) 自定义发件人邮箱，如果�
 # 运行端口配置
 PORT="3021"
 
+# Google OAuth 2.0 配置 (支持 Google 一键登录/绑定)
+GOOGLE_CLIENT_ID="xxxxxxxx-xxxxxxxx.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxx"
+
+# 应用前端访问主地址 (本地填 http://localhost:3021，生产填部署主域名，无末尾斜杠)
+NEXT_PUBLIC_APP_URL="https://league-dashboard.alonglfb.com"
+
 # Cloudflare D1 数据库配置 (HTTP API 通信凭证)
 CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
 CLOUDFLARE_D1_DATABASE_ID="your-cloudflare-d1-database-id"
@@ -91,6 +98,25 @@ docker compose up -d --build
 
 您将进入系统页面，首先需要点击“Create an Account”注册一个您的账户（注册时需收取邮件验证码），注册登录后即可进入控制台开始管理和分享您的账号。
 
+### 4. GitHub Actions 自动化持续部署 (CI/CD)
+
+项目已内置完整的 GitHub Actions 工作流（[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)），支持代码推送自动部署或手动点击部署。
+
+#### 1) 配置 GitHub Secrets
+进入仓库的 **Settings** -> **Secrets and variables** -> **Actions**，添加以下 Repository secrets：
+
+| Secret 变量名 | 必填 | 描述 |
+| :--- | :--- | :--- |
+| `SERVER_HOST` | 是 | 目标服务器公网 IP 或域名 |
+| `SERVER_USER` | 是 | SSH 连接用户名（如 `root`） |
+| `SERVER_SSH_KEY` | 是 | 用于免密登录的 SSH 私钥 |
+| `SERVER_PORT` | 否 | SSH 端口（默认 `22`） |
+| `DOT_ENV` | 否 | **生产环境完整 `.env` 文件内容**（配置后会自动写入服务器并热更新；如未配置则保留服务器本地现存 `.env`） |
+
+#### 2) 部署触发机制
+- **自动触发**：向 `master` 分支执行 `git push` 时自动触发。
+- **手动触发**：在 GitHub 仓库页面点击 **Actions** -> **Deploy to Server** -> **Run workflow** 即可一键手动部署。
+
 ## 📖 相关页面
 
 项目包含了完整的开源、隐私以及使用协议说明：
@@ -101,3 +127,4 @@ docker compose up -d --build
 
 ---
 > 💡 本项目基于 [MIT 协议](LICENSE) 开源，欢迎在 [GitHub](https://github.com/alongLFB/league-dashboard) 提交 Issue 或参与共建！
+

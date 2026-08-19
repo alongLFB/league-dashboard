@@ -57,6 +57,13 @@ SMTP_FROM="admin@your-domain.com" # (Optional) Custom sender email, defaults to 
 # Port Configuration
 PORT="3021"
 
+# Google OAuth 2.0 Configuration (One-click Google Sign-in / Account Binding)
+GOOGLE_CLIENT_ID="xxxxxxxx-xxxxxxxx.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Application Public Base URL (http://localhost:3021 for local, domain for production, without trailing slash)
+NEXT_PUBLIC_APP_URL="https://league-dashboard.alonglfb.com"
+
 # Cloudflare D1 Database Configuration (HTTP API credentials)
 CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
 CLOUDFLARE_D1_DATABASE_ID="your-cloudflare-d1-database-id"
@@ -91,6 +98,25 @@ After successfully starting, visit `http://localhost:3021` in your browser.
 
 You will be greeted by the system interface. First, you need to click "Create an Account" to register (an email verification code is required). After registering and logging in, you can access the dashboard to manage and share your accounts.
 
+### 4. Automated CI/CD Deployment with GitHub Actions
+
+The project includes a built-in GitHub Actions workflow ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) supporting both push-to-deploy and manual trigger.
+
+#### 1) Configure GitHub Secrets
+Navigate to your repository's **Settings** -> **Secrets and variables** -> **Actions**, and add the following Repository secrets:
+
+| Secret Name | Required | Description |
+| :--- | :--- | :--- |
+| `SERVER_HOST` | Yes | Target server public IP or domain |
+| `SERVER_USER` | Yes | SSH login username (e.g. `root`) |
+| `SERVER_SSH_KEY` | Yes | SSH private key for passwordless login |
+| `SERVER_PORT` | No | SSH port (defaults to `22`) |
+| `DOT_ENV` | No | **Full production `.env` file content** (automatically written to the server and reloaded; if omitted, preserves existing server `.env`) |
+
+#### 2) Triggering Deployments
+- **Automatic**: Automatically triggered on `git push` to the `master` branch.
+- **Manual**: Go to **Actions** -> **Deploy to Server** -> click **Run workflow** in GitHub repository web UI.
+
 ## 📖 Related Pages
 
 The project includes complete documentation for open source, privacy, and terms of use:
@@ -101,3 +127,4 @@ The project includes complete documentation for open source, privacy, and terms 
 
 ---
 > 💡 This project is open-sourced under the [MIT License](LICENSE). Feel free to submit an Issue or contribute on [GitHub](https://github.com/alongLFB/league-dashboard)!
+

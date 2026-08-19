@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master # 触发的分支
+  workflow_dispatch: # 支持在 GitHub Actions 页面手动点击 Run workflow 触发
 
 concurrency:
   group: deploy-${{ github.ref }}
@@ -13,13 +14,31 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Prepare Environment Secret
+        id: env_prep
+        env:
+          RAW_ENV: ${{ secrets.DOT_ENV || secrets.ENV_FILE || secrets.APP_ENV }}
+        run: |
+          if [ -n "$RAW_ENV" ]; then
+            B64=$(printf "%s" "$RAW_ENV" | base64 -w 0)
+            echo "ENV_B64=$B64" >> "$GITHUB_OUTPUT"
+            echo "HAS_ENV=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "ENV_B64=" >> "$GITHUB_OUTPUT"
+            echo "HAS_ENV=0" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: SSH and Deploy
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          ENV_B64: ${{ steps.env_prep.outputs.ENV_B64 }}
+          HAS_ENV: ${{ steps.env_prep.outputs.HAS_ENV }}
         with:
           host: ${{ secrets.SERVER_HOST }}     # 服务器IP
           username: ${{ secrets.SERVER_USER }} # 服务器用户名
           key: ${{ secrets.SERVER_SSH_KEY }}   # 服务器私钥
           port: ${{ secrets.SERVER_PORT || 22 }}
+          envs: ENV_B64,HAS_ENV
           script: |
             mkdir -p ~/github
             cd ~/github
@@ -33,10 +52,18 @@ jobs:
               git reset --hard origin/master
             fi
 
+            # 如果在 GitHub Secrets 中配置了 DOT_ENV 或 ENV_FILE，则同步写入服务器 .env；否则保留服务器原有配置
+            if [ "$HAS_ENV" = "1" ] && [ -n "$ENV_B64" ]; then
+              echo "==> Updating .env from GitHub Secrets..."
+              echo "$ENV_B64" | base64 -d > .env
+            else
+              echo "==> No GitHub Secrets .env configured, keeping existing server .env..."
+            fi
+
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-            # 从服务器本地现有的 .env.local 或 .env 文件中提取 PORT，未提取到则默认 3021
+            # 从 .env.local 或 .env 提取端口 (支持 APP_PORT 或 PORT)，默认 3021
             APP_PORT=3021
             ENV_FILE=""
             if [ -f ".env.local" ]; then
@@ -46,15 +73,17 @@ jobs:
             fi
 
             if [ -n "$ENV_FILE" ]; then
-              EXTRACTED_PORT=$(grep -E '^PORT=' "$ENV_FILE" | cut -d '=' -f2 | tr -d '\r" ' || true)
+              EXTRACTED_PORT=$(grep -E '^(APP_PORT|PORT)=' "$ENV_FILE" | head -n 1 | cut -d '=' -f2 | tr -d '\r" ' || true)
               if [ -n "$EXTRACTED_PORT" ]; then
                 APP_PORT=$EXTRACTED_PORT
               fi
             fi
 
+            echo "==> Building app with APP_PORT=$APP_PORT..."
             rm -rf .next
             npm ci
             npm run build
 
             pm2 reload league-dashboard --update-env || pm2 start npm --name "league-dashboard" -- start -- -p $APP_PORT
             pm2 save
+
