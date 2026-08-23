@@ -40,7 +40,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT || 22 }}
           envs: ENV_B64,HAS_ENV
           script: |
-            set -e
+            set -euo pipefail
             mkdir -p ~/github
             cd ~/github
             
@@ -52,7 +52,7 @@ jobs:
             git reset --hard origin/master
 
             # 如果在 GitHub Secrets 中配置了 DOT_ENV 或 ENV_FILE，则同步写入服务器 .env；否则保留服务器原有配置
-            if [ "$HAS_ENV" = "1" ] && [ -n "$ENV_B64" ]; then
+            if [ "${HAS_ENV:-0}" = "1" ] && [ -n "${ENV_B64:-}" ]; then
               echo "==> Updating .env from GitHub Secrets..."
               echo "$ENV_B64" | base64 -d > .env
             else
@@ -61,12 +61,12 @@ jobs:
 
             # 停止可能存在的历史 PM2 进程（若有）
             if command -v pm2 &> /dev/null; then
-              pm2 stop league-dashboard || true
-              pm2 delete league-dashboard || true
+              pm2 stop league-dashboard 2>/dev/null || true
+              pm2 delete league-dashboard 2>/dev/null || true
             fi
 
             echo "==> Deploying with Docker Compose..."
-            docker compose down || true
+            docker compose down 2>/dev/null || true
             docker compose up -d --build
             docker image prune -f
 
