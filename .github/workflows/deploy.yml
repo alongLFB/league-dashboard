@@ -60,30 +60,8 @@ jobs:
               echo "==> No GitHub Secrets .env configured, keeping existing server .env..."
             fi
 
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-            # 从 .env.local 或 .env 提取端口 (支持 APP_PORT 或 PORT)，默认 3021
-            APP_PORT=3021
-            ENV_FILE=""
-            if [ -f ".env.local" ]; then
-              ENV_FILE=".env.local"
-            elif [ -f ".env" ]; then
-              ENV_FILE=".env"
-            fi
-
-            if [ -n "$ENV_FILE" ]; then
-              EXTRACTED_PORT=$(grep -E '^(APP_PORT|PORT)=' "$ENV_FILE" | head -n 1 | cut -d '=' -f2 | tr -d '\r" ' || true)
-              if [ -n "$EXTRACTED_PORT" ]; then
-                APP_PORT=$EXTRACTED_PORT
-              fi
-            fi
-
-            echo "==> Building app with APP_PORT=$APP_PORT..."
-            rm -rf .next
-            npm ci
-            npm run build
-
-            pm2 reload league-dashboard --update-env || pm2 start npm --name "league-dashboard" -- start -- -p $APP_PORT
-            pm2 save
+            echo "==> Deploying with Docker Compose..."
+            docker compose down --remove-orphans || true
+            docker compose up -d --build
+            docker image prune -f
 

@@ -11,4 +11,3 @@ services:
       - "${APP_PORT:-3021}:3021"
     env_file:
       - .env
-    command: npm start
