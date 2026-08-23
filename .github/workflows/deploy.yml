@@ -60,8 +60,14 @@ jobs:
               echo "==> No GitHub Secrets .env configured, keeping existing server .env..."
             fi
 
+            # 停止可能存在的历史 PM2 进程（若有）
+            if command -v pm2 &> /dev/null; then
+              pm2 stop league-dashboard || true
+              pm2 delete league-dashboard || true
+            fi
+
             echo "==> Deploying with Docker Compose..."
-            docker compose down --remove-orphans || true
+            docker compose down || true
             docker compose up -d --build
             docker image prune -f
 
