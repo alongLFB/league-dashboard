@@ -40,17 +40,16 @@ jobs:
           port: ${{ secrets.SERVER_PORT || 22 }}
           envs: ENV_B64,HAS_ENV
           script: |
+            set -e
             mkdir -p ~/github
             cd ~/github
             
             if [ ! -d "league-dashboard" ]; then
               git clone https://github.com/alongLFB/league-dashboard.git
-              cd league-dashboard
-            else
-              cd league-dashboard
-              git fetch origin master
-              git reset --hard origin/master
             fi
+            cd league-dashboard
+            git fetch origin master
+            git reset --hard origin/master
 
             # 如果在 GitHub Secrets 中配置了 DOT_ENV 或 ENV_FILE，则同步写入服务器 .env；否则保留服务器原有配置
             if [ "$HAS_ENV" = "1" ] && [ -n "$ENV_B64" ]; then
