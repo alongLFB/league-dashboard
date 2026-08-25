@@ -5,25 +5,7 @@ import { Plus, X, Loader2, Eye, EyeOff, Globe, Tag, UserCircle, User, Lock, Chev
 import { addAccount } from '@/app/actions/accounts';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
-
-const REGIONS = [
-  { value: 'NA', label: 'North America' },
-  { value: 'ME', label: 'Middle East' },
-  { value: 'EUW', label: 'Europe West' },
-  { value: 'EUNE', label: 'Europe Nordic & East' },
-  { value: 'OCE', label: 'Oceania' },
-  { value: 'KR', label: 'Korea' },
-  { value: 'JP', label: 'Japan' },
-  { value: 'BR', label: 'Brazil' },
-  { value: 'LAS', label: 'LAS' },
-  { value: 'LAN', label: 'LAN' },
-  { value: 'RU', label: 'Russia' },
-  { value: 'TR', label: 'Türkiye' },
-  { value: 'SEA', label: 'Southeast Asia' },
-  { value: 'TW', label: 'Taiwan' },
-  { value: 'VN', label: 'Vietnam' },
-  { value: 'PBE', label: 'Public Beta' }
-];
+import { REGIONS } from '@/lib/constants';
 
 export function AddAccountForm() {
   const [isOpen, setIsOpen] = useState(false);

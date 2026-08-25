@@ -17,7 +17,9 @@ export async function proxyFetch(url: string | URL, init?: RequestInit): Promise
     try {
       const dispatcher = new ProxyAgent(proxyUrl);
       const res = await undiciFetch(url.toString(), {
-        ...(init as any),
+        method: init?.method,
+        headers: init?.headers as Record<string, string>,
+        body: init?.body as any,
         dispatcher,
       });
       return res as unknown as Response;

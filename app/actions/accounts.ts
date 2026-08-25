@@ -5,24 +5,12 @@ import { accounts, users, sharedAccounts } from '@/lib/db/schema';
 import { eq, or, inArray, desc } from 'drizzle-orm';
 import { encrypt, decrypt } from '@/lib/crypto';
 import { revalidatePath } from 'next/cache';
-import { decryptSession } from '@/lib/session';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { requireAuthUserId } from '@/lib/session';
 import { fetchSummonerRank } from '@/lib/riot';
 import { ensureRankColumns, ensureSharedAccountColumns } from '@/lib/db/ensureColumns';
 
-async function requireAuth() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('admin_session')?.value;
-  const session = await decryptSession(sessionCookie);
-  if (!session?.userId) {
-    redirect('/login');
-  }
-  return session.userId as string;
-}
-
 export async function getAccounts() {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   await ensureRankColumns();
   await ensureSharedAccountColumns();
   
@@ -119,7 +107,7 @@ export async function addAccount(data: {
   username: string;
   password: string;
 }) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   await ensureRankColumns();
   
   const encryptedPassword = encrypt(data.password);
@@ -137,7 +125,7 @@ export async function addAccount(data: {
 }
 
 export async function deleteAccount(id: string) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   
   const [account] = await db
     .select()
@@ -162,7 +150,7 @@ export async function updateAccount(id: string, data: {
   username: string;
   password: string;
 }) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   
   const [account] = await db
     .select()
@@ -191,7 +179,7 @@ export async function updateAccount(id: string, data: {
 }
 
 export async function refreshAccountRank(id: string) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   await ensureRankColumns();
 
   const [account] = await db

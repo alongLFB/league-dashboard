@@ -4,22 +4,11 @@ import { db } from '@/lib/db/client';
 import { users, verificationCodes } from '@/lib/db/schema';
 import { eq, and, gt, desc } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { decryptSession, encryptSession } from '@/lib/session';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { decryptSession, encryptSession, requireAuth } from '@/lib/session';
 import bcrypt from 'bcryptjs';
 
 import { ensureUserGoogleColumns } from '@/lib/db/ensureColumns';
-
-async function requireAuth() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('admin_session')?.value;
-  const session = await decryptSession(sessionCookie);
-  if (!session?.userId) {
-    redirect('/login');
-  }
-  return session;
-}
 
 export async function getUserProfile() {
   const session = await requireAuth();

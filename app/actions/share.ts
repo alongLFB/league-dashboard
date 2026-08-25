@@ -4,23 +4,12 @@ import { db } from '@/lib/db/client';
 import { accounts, users, sharedAccounts } from '@/lib/db/schema';
 import { eq, and, ne, or, inArray, desc, like } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { decryptSession } from '@/lib/session';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { requireAuthUserId } from '@/lib/session';
+import { maskEmail } from '@/lib/utils';
 import { ensureSharedAccountColumns } from '@/lib/db/ensureColumns';
 
-async function requireAuth() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('admin_session')?.value;
-  const session = await decryptSession(sessionCookie);
-  if (!session?.userId) {
-    redirect('/login');
-  }
-  return session.userId as string;
-}
-
 export async function getRegisteredUsersForShare(query?: string) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   
   let whereClause = ne(users.id, userId);
   
@@ -51,20 +40,14 @@ export async function getRegisteredUsersForShare(query?: string) {
     id: u.id,
     nickname: u.nickname,
     username: u.username,
-    displayInfo: u.email.replace(/(.{2})(.*)(?=@)/,
-      (_gp1: string, gp2: string, gp3: string) => { 
-        let mask = "";
-        for (let i = 0; i < gp3.length; i++) mask += "*";
-        return gp2 + mask;
-      }
-    )
+    displayInfo: maskEmail(u.email)
   }));
   
   return { success: true, users: formattedUsers };
 }
 
 export async function searchUserForShare(query: string) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   
   if (!query || query.trim() === '') return null;
   
@@ -89,18 +72,12 @@ export async function searchUserForShare(query: string) {
     id: user.id,
     nickname: user.nickname,
     username: user.username,
-    displayInfo: user.email.replace(/(.{2})(.*)(?=@)/,
-      (_gp1: string, gp2: string, gp3: string) => { 
-        let mask = "";
-        for (let i = 0; i < gp3.length; i++) mask += "*";
-        return gp2 + mask;
-      }
-    )
+    displayInfo: maskEmail(user.email)
   };
 }
 
 export async function shareAccount(accountId: string, targetUserId: string, canReshare: boolean = false) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   await ensureSharedAccountColumns();
   
   // Verify ownership or secondary share permission
@@ -175,7 +152,7 @@ export async function shareAccount(accountId: string, targetUserId: string, canR
 }
 
 export async function getAccountShares(accountId: string) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   await ensureSharedAccountColumns();
   
   // Verify ownership or secondary share permission
@@ -228,13 +205,7 @@ export async function getAccountShares(accountId: string) {
     id: share.id,
     userId: share.userId,
     nickname: share.nickname,
-    displayInfo: share.email.replace(/(.{2})(.*)(?=@)/,
-      (_gp1: string, gp2: string, gp3: string) => { 
-        let mask = "";
-        for (let i = 0; i < gp3.length; i++) mask += "*";
-        return gp2 + mask;
-      }
-    ),
+    displayInfo: maskEmail(share.email),
     canReshare: Number(share.canReshare) === 1,
     isOwner,
     createdAt: share.createdAt
@@ -244,7 +215,7 @@ export async function getAccountShares(accountId: string) {
 }
 
 export async function toggleShareResharePermission(accountId: string, targetUserId: string, canReshare: boolean) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   await ensureSharedAccountColumns();
 
   // Only the original account owner can change secondary sharing permissions
@@ -277,7 +248,7 @@ export async function toggleShareResharePermission(accountId: string, targetUser
 }
 
 export async function revokeShare(accountId: string, targetUserId: string) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   
   const [account] = await db
     .select()
@@ -329,7 +300,7 @@ export async function revokeShare(accountId: string, targetUserId: string) {
 }
 
 export async function batchShareAccounts(accountIds: string[], targetUserId: string, canReshare: boolean = false) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   await ensureSharedAccountColumns();
   
   if (accountIds.length === 0) return { success: true };
@@ -405,7 +376,7 @@ export async function batchShareAccounts(accountIds: string[], targetUserId: str
 }
 
 export async function getBatchAccountShares(accountIds: string[]) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   await ensureSharedAccountColumns();
   
   if (accountIds.length === 0) return { success: true, shares: [] };
@@ -462,13 +433,7 @@ export async function getBatchAccountShares(accountIds: string[]) {
       userMap.set(share.userId, {
         userId: share.userId,
         nickname: share.nickname,
-        displayInfo: share.email.replace(/(.{2})(.*)(?=@)/,
-          (_gp1: string, gp2: string, gp3: string) => { 
-            let mask = "";
-            for (let i = 0; i < gp3.length; i++) mask += "*";
-            return gp2 + mask;
-          }
-        ),
+        displayInfo: maskEmail(share.email),
         accounts: [],
       });
     }
@@ -486,7 +451,7 @@ export async function getBatchAccountShares(accountIds: string[]) {
 }
 
 export async function batchRevokeShareForUser(accountIds: string[], targetUserId: string) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   
   if (accountIds.length === 0) return { success: true };
 
@@ -534,7 +499,7 @@ export async function batchRevokeShareForUser(accountIds: string[], targetUserId
 }
 
 export async function getUsersWithSharedAccounts() {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   await ensureSharedAccountColumns();
 
   const shares = await db
@@ -562,13 +527,7 @@ export async function getUsersWithSharedAccounts() {
         user: {
           id: share.userId,
           nickname: share.userNickname,
-          displayInfo: share.userEmail.replace(/(.{2})(.*)(?=@)/,
-            (_gp1: string, gp2: string, gp3: string) => { 
-              let mask = "";
-              for (let i = 0; i < gp3.length; i++) mask += "*";
-              return gp2 + mask;
-            }
-          )
+          displayInfo: maskEmail(share.userEmail)
         },
         accounts: []
       });
@@ -586,7 +545,7 @@ export async function getUsersWithSharedAccounts() {
 }
 
 export async function revokeAllSharesForUser(targetUserId: string) {
-  const userId = await requireAuth();
+  const userId = await requireAuthUserId();
   
   const userAccounts = await db
     .select({ id: accounts.id })

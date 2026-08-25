@@ -8,8 +8,36 @@
 import { drizzle } from "drizzle-orm/sqlite-proxy";
 import * as schema from "./schema";
 
-const getD1ApiUrl = () =>
+export const getD1ApiUrl = () =>
   `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/d1/database/${process.env.CLOUDFLARE_D1_DATABASE_ID}/query`;
+
+/**
+ * Execute raw DDL / SQL query against Cloudflare D1 HTTP API.
+ */
+export async function executeD1Sql(sql: string, params: unknown[] = []): Promise<unknown> {
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+
+  if (!accountId || !databaseId || !apiToken) {
+    return null;
+  }
+
+  try {
+    const res = await fetch(getD1ApiUrl(), {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ sql, params }),
+      cache: "no-store",
+    });
+    return res.ok ? res.json() : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Execute a SQL query against Cloudflare D1 via HTTP API.
