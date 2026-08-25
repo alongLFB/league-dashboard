@@ -40,6 +40,8 @@ interface AccountCardProps {
   password?: string;
   isOwner?: boolean;
   isShared?: boolean;
+  canReshare?: boolean;
+  canShare?: boolean;
   ownerNickname?: string;
   isSelectionMode?: boolean;
   isSelected?: boolean;
@@ -127,7 +129,7 @@ function getTierStyle(tier?: string | null) {
 const VALID_TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER', 'UNRANKED'] as const;
 
 export function AccountCard({ 
-  id, region, alias, summonerId, username, password, isOwner = true, isShared = false, ownerNickname,
+  id, region, alias, summonerId, username, password, isOwner = true, isShared = false, canReshare = false, canShare, ownerNickname,
   isSelectionMode = false, isSelected = false, onToggleSelect,
   soloTier, soloRank, soloLp, soloWins, soloLosses,
   flexTier, flexRank, flexLp, flexWins, flexLosses,
@@ -373,9 +375,27 @@ export function AccountCard({
                     </button>
                   </>
                 ) : (
-                  <div className="px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-full inline-flex items-center gap-1.5 shrink-0 ml-1">
-                    <ShieldCheck size={12} className="text-green-400" />
-                    <span className="text-[10px] text-green-300 font-bold">{tCard('sharedBy', { nickname: ownerNickname || '' })}</span>
+                  <div className="flex items-center gap-1">
+                    {canReshare && (
+                      <button 
+                        onClick={() => setIsShareModalOpen(true)}
+                        className="p-2.5 rounded-full text-gray-500 hover:text-green-400 hover:bg-green-400/10 focus:outline-none transition-all lg:opacity-0 group-hover:opacity-100"
+                        title={tCard('shareBtn')}
+                      >
+                        <Share2 size={16} />
+                      </button>
+                    )}
+                    <div className={`px-2.5 py-1 ${canReshare ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-green-500/10 border-green-500/30'} border rounded-full inline-flex items-center gap-1.5 shrink-0 ml-1`}>
+                      <ShieldCheck size={12} className={canReshare ? "text-emerald-400" : "text-green-400"} />
+                      <span className={`text-[10px] ${canReshare ? "text-emerald-300" : "text-green-300"} font-bold`}>
+                        {tCard('sharedBy', { nickname: ownerNickname || '' })}
+                      </span>
+                      {canReshare && (
+                        <span className="text-[9px] px-1 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-medium ml-0.5">
+                          {tCard('canReshareBadge')}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

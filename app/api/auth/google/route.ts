@@ -33,10 +33,7 @@ export async function GET(req: NextRequest) {
     csrf: crypto.randomUUID(),
   });
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.APP_URL ||
-    req.nextUrl.origin;
+  const baseUrl = req.nextUrl.origin || process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || '';
 
   const redirectUri = `${baseUrl.replace(/\/$/, '')}/api/auth/google/callback`;
 

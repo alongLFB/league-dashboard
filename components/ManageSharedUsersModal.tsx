@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Loader2, UserCheck, Users, ShieldMinus, ChevronDown, ChevronRight, Gamepad2 } from 'lucide-react';
-import { getUsersWithSharedAccounts, revokeShare, revokeAllSharesForUser } from '@/app/actions/share';
+import { X, Loader2, UserCheck, Users, ShieldMinus, ShieldCheck, ShieldAlert, ChevronDown, ChevronRight, Gamepad2 } from 'lucide-react';
+import { getUsersWithSharedAccounts, revokeShare, revokeAllSharesForUser, toggleShareResharePermission } from '@/app/actions/share';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 
@@ -14,6 +14,7 @@ export function ManageSharedUsersModal({ onClose }: ManageSharedUsersModalProps)
   const [sharedUsers, setSharedUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
   const t = useTranslations('Share');
 
@@ -42,8 +43,33 @@ export function ManageSharedUsersModal({ onClose }: ManageSharedUsersModalProps)
     setExpandedUsers(next);
   };
 
+  const handleToggleReshare = async (targetUserId: string, accountId: string, currentVal: boolean) => {
+    const key = `${targetUserId}-${accountId}`;
+    setTogglingId(key);
+    const res = await toggleShareResharePermission(accountId, targetUserId, !currentVal);
+    setTogglingId(null);
+
+    if (res.success) {
+      toast.success(t('toggleReshareSuccess'));
+      setSharedUsers(prev => {
+        return prev.map(u => {
+          if (u.user.id === targetUserId) {
+            return {
+              ...u,
+              accounts: u.accounts.map((a: any) => a.id === accountId ? { ...a, canReshare: !currentVal } : a)
+            };
+          }
+          return u;
+        });
+      });
+    } else {
+      toast.error(res.error || t('toggleReshareFailed'));
+    }
+  };
+
   const handleRevokeAccount = async (targetUserId: string, accountId: string) => {
-    setRevokingId(`${targetUserId}-${accountId}`);
+    const key = `${targetUserId}-${accountId}`;
+    setRevokingId(key);
     const res = await revokeShare(accountId, targetUserId);
     setRevokingId(null);
     
@@ -140,26 +166,56 @@ export function ManageSharedUsersModal({ onClose }: ManageSharedUsersModalProps)
                       {isExpanded && (
                         <div className="border-t border-gray-800/50 p-2 bg-gray-900/20">
                           <div className="space-y-1 mb-2">
-                            {accounts.map((account: any) => (
-                              <div key={account.id} className="flex items-center justify-between p-2 hover:bg-gray-800/30 rounded-lg transition-colors group">
-                                <div className="flex items-center gap-2 overflow-hidden">
-                                  <Gamepad2 size={12} className="text-gray-500 shrink-0" />
-                                  <span className="text-xs text-gray-300 truncate">{account.alias || account.summonerId}</span>
-                                  <span className="text-[10px] text-gray-600 border border-gray-800 px-1.5 py-0.5 rounded">{account.region}</span>
+                            {accounts.map((account: any) => {
+                              const toggleKey = `${user.id}-${account.id}`;
+                              return (
+                                <div key={account.id} className="flex items-center justify-between p-2 hover:bg-gray-800/30 rounded-lg transition-colors group">
+                                  <div className="flex items-center gap-2 overflow-hidden">
+                                    <Gamepad2 size={12} className="text-gray-500 shrink-0" />
+                                    <span className="text-xs text-gray-300 truncate">{account.alias || account.summonerId}</span>
+                                    <span className="text-[10px] text-gray-600 border border-gray-800 px-1.5 py-0.5 rounded">{account.region}</span>
+                                  </div>
+
+                                  <div className="flex items-center gap-1.5">
+                                    {/* Reshare toggle switch button */}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleToggleReshare(user.id, account.id, account.canReshare);
+                                      }}
+                                      disabled={togglingId === toggleKey}
+                                      className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors flex items-center gap-1 ${
+                                        account.canReshare 
+                                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20' 
+                                          : 'bg-gray-800 text-gray-500 border-gray-700 hover:text-gray-300'
+                                      }`}
+                                      title={account.canReshare ? t('reshareEnabled') : t('reshareDisabled')}
+                                    >
+                                      {togglingId === toggleKey ? (
+                                        <Loader2 size={10} className="animate-spin" />
+                                      ) : account.canReshare ? (
+                                        <ShieldCheck size={10} />
+                                      ) : (
+                                        <ShieldAlert size={10} />
+                                      )}
+                                      {account.canReshare ? t('canReshareBadge') : t('resharePermTitle')}
+                                    </button>
+
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRevokeAccount(user.id, account.id);
+                                      }}
+                                      disabled={revokingId === toggleKey}
+                                      className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                                      title={t('revokeThisAccount')}
+                                    >
+                                      {revokingId === toggleKey ? <Loader2 size={14} className="animate-spin text-red-400" /> : <ShieldMinus size={14} />}
+                                    </button>
+                                  </div>
                                 </div>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRevokeAccount(user.id, account.id);
-                                  }}
-                                  disabled={revokingId === `${user.id}-${account.id}`}
-                                  className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50"
-                                  title={t('revokeThisAccount')}
-                                >
-                                  {revokingId === `${user.id}-${account.id}` ? <Loader2 size={14} className="animate-spin text-red-400" /> : <ShieldMinus size={14} />}
-                                </button>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                           <button
                             onClick={(e) => {

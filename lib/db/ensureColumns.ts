@@ -92,4 +92,40 @@ export async function ensureUserGoogleColumns() {
   );
 }
 
+let sharedAccountMigrationAttempted = false;
 
+export async function ensureSharedAccountColumns() {
+  if (sharedAccountMigrationAttempted) return;
+  sharedAccountMigrationAttempted = true;
+
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+
+  if (!accountId || !databaseId || !apiToken) {
+    return;
+  }
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/query`;
+
+  const statements = [
+    'ALTER TABLE shared_accounts ADD COLUMN can_reshare INTEGER DEFAULT 0;',
+  ];
+
+  await Promise.allSettled(
+    statements.map((sql) =>
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sql,
+          params: [],
+        }),
+        cache: 'no-store',
+      })
+    )
+  );
+}

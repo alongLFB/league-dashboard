@@ -38,7 +38,9 @@
     "resetFilters": "重置筛选",
     "noFilteredAccounts": "没有找到符合筛选条件的账号",
     "showingAccounts": "共 {count} 个账号",
-    "sharedTag": "已分享"
+    "sharedTag": "已分享",
+    "filteredUnsharable": "已自动排除 {count} 个无二次分享权限的账号",
+    "noSharableAccounts": "选中的账号均未获得二次分享授权"
   },
   "Share": {
     "loadFailed": "加载分享用户失败",
@@ -68,7 +70,18 @@
     "usernameOrEmail": "用户名或邮箱",
     "confirmShare": "确认分享",
     "notSharedYet": "暂未分享给任何用户。",
-    "revokeShareTitle": "撤销分享"
+    "revokeShareTitle": "撤销分享",
+    "allowReshare": "允许被分享人再次分享",
+    "allowReshareDesc": "开启后，被分享人可将此账号继续分享给他人",
+    "canReshareBadge": "可二次分享",
+    "reshareDisabled": "禁止二次分享",
+    "reshareEnabled": "允许二次分享",
+    "toggleReshareSuccess": "二次分享权限已更新",
+    "toggleReshareFailed": "更新权限失败",
+    "unauthorizedReshare": "选中的账号中包含未获得二次分享权限的账号",
+    "unauthorizedSingle": "您没有二次分享该账号的权限",
+    "resharePermTitle": "二次分享",
+    "reshareGranted": "已获二次分享权"
   },
   "Profile": {
     "title": "个人设置",
@@ -168,6 +181,7 @@
     "shareText": "🎮 英雄联盟账号\n🌍 大区: {region}\n🆔 召唤师: {summonerId}\n👤 账号: {username}\n🔑 密码: {password}",
     "copyAllTitle": "复制全套账号信息",
     "sharedBy": "来自 {nickname} 的分享",
+    "canReshareBadge": "可再分享",
     "fieldCopied": "{field} 已复制",
     "shareBtn": "分享",
     "decryptError": "[解密失败]",

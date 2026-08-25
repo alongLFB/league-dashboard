@@ -9,7 +9,7 @@ import { decryptSession } from '@/lib/session';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { fetchSummonerRank } from '@/lib/riot';
-import { ensureRankColumns } from '@/lib/db/ensureColumns';
+import { ensureRankColumns, ensureSharedAccountColumns } from '@/lib/db/ensureColumns';
 
 async function requireAuth() {
   const cookieStore = await cookies();
@@ -24,13 +24,22 @@ async function requireAuth() {
 export async function getAccounts() {
   const userId = await requireAuth();
   await ensureRankColumns();
+  await ensureSharedAccountColumns();
   
   const shared = await db
-    .select({ accountId: sharedAccounts.accountId })
+    .select({
+      accountId: sharedAccounts.accountId,
+      canReshare: sharedAccounts.canReshare,
+    })
     .from(sharedAccounts)
     .where(eq(sharedAccounts.userId, userId));
   
-  const sharedIds = shared.map(s => s.accountId);
+  const sharedMap = new Map<string, { canReshare: boolean }>();
+  for (const s of shared) {
+    sharedMap.set(s.accountId, { canReshare: Number(s.canReshare) === 1 });
+  }
+
+  const sharedIds = Array.from(sharedMap.keys());
 
   const whereClause = sharedIds.length > 0
     ? or(eq(accounts.ownerId, userId), inArray(accounts.id, sharedIds))
@@ -71,6 +80,9 @@ export async function getAccounts() {
 
   return resultList.map(acc => {
     const isOwner = acc.ownerId === userId;
+    const userShareInfo = sharedMap.get(acc.id);
+    const canReshare = isOwner ? false : Boolean(userShareInfo?.canReshare);
+    const canShare = isOwner || canReshare;
     const isShared = !isOwner || allSharedAccountIds.has(acc.id);
 
     return {
@@ -82,6 +94,8 @@ export async function getAccounts() {
       password: decrypt(acc.password),
       isOwner,
       isShared,
+      canReshare,
+      canShare,
       ownerNickname: acc.ownerNickname ?? 'Unknown',
       soloTier: acc.soloTier,
       soloRank: acc.soloRank,

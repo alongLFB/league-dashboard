@@ -20,10 +20,7 @@ export async function GET(req: NextRequest) {
   const state = searchParams.get('state');
   const error = searchParams.get('error');
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.APP_URL ||
-    req.nextUrl.origin;
+  const baseUrl = req.nextUrl.origin || process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || '';
 
   const statePayload = await decryptOAuthState(state || '');
   const mode = (statePayload?.mode as string) || 'login';

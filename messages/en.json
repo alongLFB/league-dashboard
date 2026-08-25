@@ -38,7 +38,9 @@
     "resetFilters": "Reset Filters",
     "noFilteredAccounts": "No accounts found matching criteria",
     "showingAccounts": "{count} accounts",
-    "sharedTag": "Shared"
+    "sharedTag": "Shared",
+    "filteredUnsharable": "Excluded {count} accounts without reshare permission",
+    "noSharableAccounts": "None of the selected accounts have reshare permission"
   },
   "Share": {
     "loadFailed": "Failed to load shared users",
@@ -68,7 +70,18 @@
     "usernameOrEmail": "Username or Email",
     "confirmShare": "Confirm Share",
     "notSharedYet": "Not shared with anyone yet.",
-    "revokeShareTitle": "Revoke Share"
+    "revokeShareTitle": "Revoke Share",
+    "allowReshare": "Allow recipient to reshare",
+    "allowReshareDesc": "When enabled, the recipient can share this account with others",
+    "canReshareBadge": "Resharable",
+    "reshareDisabled": "Resharing disabled",
+    "reshareEnabled": "Resharing allowed",
+    "toggleReshareSuccess": "Reshare permission updated",
+    "toggleReshareFailed": "Failed to update permission",
+    "unauthorizedReshare": "Some selected accounts do not have reshare permission",
+    "unauthorizedSingle": "You do not have permission to reshare this account",
+    "resharePermTitle": "Reshare",
+    "reshareGranted": "Reshare Granted"
   },
   "Profile": {
     "title": "Profile Settings",
@@ -168,6 +181,7 @@
     "shareText": "🎮 League of Legends Account\n🌍 Region: {region}\n🆔 Summoner ID: {summonerId}\n👤 Username: {username}\n🔑 Password: {password}",
     "copyAllTitle": "Copy all account info",
     "sharedBy": "Shared by {nickname}",
+    "canReshareBadge": "Resharable",
     "fieldCopied": "{field} copied",
     "shareBtn": "Share",
     "decryptError": "[Decryption Failed]",

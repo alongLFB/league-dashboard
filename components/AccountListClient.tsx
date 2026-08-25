@@ -5,6 +5,7 @@ import { AccountCard } from './AccountCard';
 import { ShareModal } from './ShareModal';
 import { Share2, X, CheckSquare, Search, Filter, ArrowUpDown, User, Globe, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 interface AccountListClientProps {
   accounts: any[];
@@ -294,9 +295,22 @@ export function AccountListClient({ accounts }: AccountListClientProps) {
             
             <button
               onClick={() => {
-                if (selectedIds.size > 0) {
-                  setIsShareModalOpen(true);
+                if (selectedIds.size === 0) return;
+                const selectedList = accounts.filter(a => selectedIds.has(a.id));
+                const sharableList = selectedList.filter(a => a.isOwner || a.canReshare);
+                const unsharableCount = selectedList.length - sharableList.length;
+
+                if (sharableList.length === 0) {
+                  toast.error(tList('noSharableAccounts'));
+                  return;
                 }
+
+                if (unsharableCount > 0) {
+                  toast.info(tList('filteredUnsharable', { count: unsharableCount }));
+                  setSelectedIds(new Set(sharableList.map(a => a.id)));
+                }
+
+                setIsShareModalOpen(true);
               }}
               disabled={selectedIds.size === 0}
               className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-500 hover:to-green-400 disabled:opacity-50 disabled:grayscale text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all"
