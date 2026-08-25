@@ -81,7 +81,15 @@
     "unauthorizedReshare": "选中的账号中包含未获得二次分享权限的账号",
     "unauthorizedSingle": "您没有二次分享该账号的权限",
     "resharePermTitle": "二次分享",
-    "reshareGranted": "已获二次分享权"
+    "reshareGranted": "已获二次分享权",
+    "registeredUsers": "系统已注册用户",
+    "selectRecipient": "选择分享给该用户",
+    "searchUserPlaceholder": "搜索昵称、账号或邮箱...",
+    "noOtherUsers": "暂无其他可分享的注册用户",
+    "noMatchingUsers": "未找到匹配的注册用户",
+    "selectedRecipient": "已选分享对象",
+    "changeRecipient": "重新选择",
+    "quickSelect": "点击选择分享对象"
   },
   "Profile": {
     "title": "个人设置",

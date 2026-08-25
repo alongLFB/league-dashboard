@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db/client';
 import { accounts, users, sharedAccounts } from '@/lib/db/schema';
-import { eq, and, ne, or, inArray, desc } from 'drizzle-orm';
+import { eq, and, ne, or, inArray, desc, like } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { decryptSession } from '@/lib/session';
 import { cookies } from 'next/headers';
@@ -17,6 +17,50 @@ async function requireAuth() {
     redirect('/login');
   }
   return session.userId as string;
+}
+
+export async function getRegisteredUsersForShare(query?: string) {
+  const userId = await requireAuth();
+  
+  let whereClause = ne(users.id, userId);
+  
+  if (query && query.trim() !== '') {
+    const q = `%${query.trim()}%`;
+    whereClause = and(
+      ne(users.id, userId),
+      or(
+        like(users.username, q),
+        like(users.email, q),
+        like(users.nickname, q)
+      )
+    ) as any;
+  }
+  
+  const userList = await db
+    .select({
+      id: users.id,
+      nickname: users.nickname,
+      username: users.username,
+      email: users.email,
+    })
+    .from(users)
+    .where(whereClause)
+    .limit(50);
+  
+  const formattedUsers = userList.map(u => ({
+    id: u.id,
+    nickname: u.nickname,
+    username: u.username,
+    displayInfo: u.email.replace(/(.{2})(.*)(?=@)/,
+      (_gp1: string, gp2: string, gp3: string) => { 
+        let mask = "";
+        for (let i = 0; i < gp3.length; i++) mask += "*";
+        return gp2 + mask;
+      }
+    )
+  }));
+  
+  return { success: true, users: formattedUsers };
 }
 
 export async function searchUserForShare(query: string) {
@@ -44,6 +88,7 @@ export async function searchUserForShare(query: string) {
   return {
     id: user.id,
     nickname: user.nickname,
+    username: user.username,
     displayInfo: user.email.replace(/(.{2})(.*)(?=@)/,
       (_gp1: string, gp2: string, gp3: string) => { 
         let mask = "";

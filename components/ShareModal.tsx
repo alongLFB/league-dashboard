@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Search, Loader2, Share2, UserCheck, Users, ShieldMinus, ShieldCheck, ShieldAlert, ChevronDown, ChevronRight, Gamepad2 } from 'lucide-react';
+import { X, Search, Loader2, Share2, UserCheck, Users, ShieldMinus, ShieldCheck, ShieldAlert, ChevronDown, ChevronRight, Gamepad2, Check } from 'lucide-react';
 import { 
   searchUserForShare, 
+  getRegisteredUsersForShare,
   shareAccount, 
   getAccountShares, 
   revokeShare, 
@@ -32,6 +33,10 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
   const [allowReshare, setAllowReshare] = useState(false);
   const [sharing, setSharing] = useState(false);
 
+  // Registered users state
+  const [registeredUsers, setRegisteredUsers] = useState<any[]>([]);
+  const [loadingRegistered, setLoadingRegistered] = useState(false);
+
   // Manage state
   const [sharedUsers, setSharedUsers] = useState<any[]>([]);
   const [loadingShares, setLoadingShares] = useState(false);
@@ -42,8 +47,19 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
   useEffect(() => {
     if (activeTab === 'manage') {
       loadShares();
+    } else if (activeTab === 'share') {
+      loadRegisteredUsers();
     }
   }, [activeTab]);
+
+  const loadRegisteredUsers = async () => {
+    setLoadingRegistered(true);
+    const res = await getRegisteredUsersForShare();
+    if (res.success && res.users) {
+      setRegisteredUsers(res.users);
+    }
+    setLoadingRegistered(false);
+  };
 
   const loadShares = async () => {
     setLoadingShares(true);
@@ -70,8 +86,19 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
     e.preventDefault();
     if (!query.trim()) return;
 
+    // Check if matched in loaded registered users list
+    const q = query.trim().toLowerCase();
+    const matched = registeredUsers.find(
+      u => u.username?.toLowerCase() === q ||
+           u.nickname?.toLowerCase() === q ||
+           u.displayInfo?.toLowerCase() === q
+    );
+    if (matched) {
+      setTargetUser(matched);
+      return;
+    }
+
     setSearching(true);
-    setTargetUser(null);
     try {
       const user = await searchUserForShare(query);
       if (user) {
@@ -219,42 +246,61 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
           
           <div className="overflow-y-auto flex-1 pr-2 -mr-2 scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent">
             {activeTab === 'share' ? (
-              <div>
-                <form onSubmit={handleSearch} className="relative group mb-6">
+              <div className="space-y-4">
+                {/* Search Bar */}
+                <form onSubmit={handleSearch} className="relative group">
+                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-400 transition-colors" />
                   <input 
-                    required
                     value={query}
-                    onChange={e => {
-                      setQuery(e.target.value);
-                      setTargetUser(null);
-                    }}
-                    placeholder={t('usernameOrEmail')}
-                    className="w-full bg-gray-900/50 border border-gray-800 rounded-xl py-3 pl-4 pr-12 text-sm tracking-wide text-gray-200 outline-none focus:border-blue-500 transition-colors"
+                    onChange={e => setQuery(e.target.value)}
+                    placeholder={t('searchUserPlaceholder')}
+                    className="w-full bg-gray-900/60 border border-gray-800 rounded-xl py-2.5 pl-10 pr-10 text-xs tracking-wide text-gray-200 outline-none focus:border-blue-500 transition-colors"
                   />
-                  <button
-                    type="submit"
-                    disabled={searching || !query.trim()}
-                    className="absolute right-2 top-2 bottom-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 hover:text-blue-300 rounded-lg px-3 transition-colors disabled:opacity-50 flex items-center justify-center"
-                  >
-                    {searching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-                  </button>
+                  {query && (
+                    <button
+                      type="button"
+                      onClick={() => setQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 p-1"
+                    >
+                      <X size={13} />
+                    </button>
+                  )}
                 </form>
 
+                {/* Selected Target User & Confirm Card */}
                 {targetUser && (
-                  <div className="mt-4 p-4 bg-gray-900/80 border border-gray-800 rounded-xl">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 flex items-center justify-center">
-                        <UserCheck size={18} className="text-blue-400" />
+                  <div className="p-4 bg-gradient-to-b from-blue-950/40 to-gray-900/80 border border-blue-500/40 rounded-2xl shadow-xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400">
+                        {t('selectedRecipient')}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setTargetUser(null)}
+                        className="text-[11px] text-gray-400 hover:text-white px-2 py-0.5 bg-gray-800/60 hover:bg-gray-800 rounded-lg transition-colors border border-gray-700/60"
+                      >
+                        {t('changeRecipient')}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-blue-400/50 flex items-center justify-center font-bold text-sm text-blue-300 shadow-inner">
+                        {targetUser.nickname ? targetUser.nickname.slice(0, 1).toUpperCase() : <UserCheck size={18} />}
                       </div>
-                      <div>
-                        <div className="text-sm font-bold text-gray-200">{targetUser.nickname}</div>
-                        <div className="text-xs text-gray-500 font-mono mt-0.5">{targetUser.displayInfo}</div>
+                      <div className="flex-1 overflow-hidden">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-bold text-gray-100 truncate">{targetUser.nickname}</span>
+                          {targetUser.username && (
+                            <span className="text-xs text-blue-400/80 font-mono truncate">@{targetUser.username}</span>
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-400 font-mono truncate">{targetUser.displayInfo}</div>
                       </div>
                     </div>
 
                     {/* Secondary Sharing Permission Checkbox */}
                     <div 
-                      className="flex items-start gap-3 p-3 bg-gray-950/60 border border-gray-800/80 rounded-xl mb-4 cursor-pointer hover:border-gray-700 transition-colors"
+                      className="flex items-start gap-3 p-3 bg-gray-950/80 border border-gray-800/80 rounded-xl cursor-pointer hover:border-gray-700 transition-colors"
                       onClick={() => setAllowReshare(!allowReshare)}
                     >
                       <input
@@ -278,13 +324,112 @@ export function ShareModal({ accountIds, onClose }: ShareModalProps) {
                     <button 
                       onClick={handleShare}
                       disabled={sharing}
-                      className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-500 hover:to-green-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-50 shadow-lg shadow-blue-900/20 focus:outline-none"
+                      className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-500 hover:to-green-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-50 shadow-lg shadow-blue-900/30 focus:outline-none"
                     >
                       {sharing ? <Loader2 size={16} className="animate-spin" /> : <Share2 size={16} />}
                       {t('confirmShare')}
                     </button>
                   </div>
                 )}
+
+                {/* Registered Users List */}
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-center justify-between px-1 text-[11px] font-bold tracking-wider text-gray-400">
+                    <span className="flex items-center gap-1.5">
+                      <Users size={13} className="text-blue-400" />
+                      {t('registeredUsers')}
+                    </span>
+                    <span className="text-[10px] text-gray-500 font-mono">
+                      {loadingRegistered ? '...' : `${registeredUsers.filter(u => {
+                        if (!query.trim()) return true;
+                        const q = query.toLowerCase().trim();
+                        return (
+                          u.nickname?.toLowerCase().includes(q) ||
+                          u.username?.toLowerCase().includes(q) ||
+                          u.displayInfo?.toLowerCase().includes(q)
+                        );
+                      }).length} / ${registeredUsers.length}`}
+                    </span>
+                  </div>
+
+                  {loadingRegistered ? (
+                    <div className="flex justify-center items-center py-8 text-gray-500">
+                      <Loader2 size={20} className="animate-spin" />
+                    </div>
+                  ) : (
+                    (() => {
+                      const filtered = registeredUsers.filter(u => {
+                        if (!query.trim()) return true;
+                        const q = query.toLowerCase().trim();
+                        return (
+                          u.nickname?.toLowerCase().includes(q) ||
+                          u.username?.toLowerCase().includes(q) ||
+                          u.displayInfo?.toLowerCase().includes(q)
+                        );
+                      });
+
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="text-center py-8 text-gray-500 text-xs bg-gray-900/30 border border-gray-800/50 rounded-2xl">
+                            {query ? t('noMatchingUsers') : t('noOtherUsers')}
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-800">
+                          {filtered.map(user => {
+                            const isSelected = targetUser?.id === user.id;
+                            return (
+                              <div
+                                key={user.id}
+                                onClick={() => setTargetUser(user)}
+                                className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer group ${
+                                  isSelected 
+                                    ? 'bg-blue-600/20 border-blue-500/60 shadow-sm shadow-blue-900/20' 
+                                    : 'bg-gray-900/40 border-gray-800/60 hover:bg-gray-800/50 hover:border-gray-700'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
+                                    isSelected 
+                                      ? 'bg-blue-500 text-white shadow-md' 
+                                      : 'bg-gray-800 text-gray-300 border border-gray-700 group-hover:border-gray-600'
+                                  }`}>
+                                    {user.nickname ? user.nickname.slice(0, 1).toUpperCase() : 'U'}
+                                  </div>
+                                  <div className="overflow-hidden">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className={`text-xs font-bold truncate ${isSelected ? 'text-blue-300' : 'text-gray-200'}`}>
+                                        {user.nickname}
+                                      </span>
+                                      {user.username && (
+                                        <span className="text-[10px] text-gray-500 font-mono truncate">@{user.username}</span>
+                                      )}
+                                    </div>
+                                    <div className="text-[10px] text-gray-500 font-mono truncate">{user.displayInfo}</div>
+                                  </div>
+                                </div>
+
+                                <div className="shrink-0 ml-2">
+                                  {isSelected ? (
+                                    <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 bg-blue-500 text-white rounded-lg shadow-sm">
+                                      <Check size={12} />
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] px-2 py-1 rounded-lg text-gray-400 bg-gray-900/60 border border-gray-800 group-hover:text-blue-400 group-hover:border-blue-500/30 transition-all">
+                                      {t('selectRecipient')}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()
+                  )}
+                </div>
               </div>
             ) : (
               <div className="space-y-3">

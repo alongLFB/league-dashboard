@@ -81,7 +81,15 @@
     "unauthorizedReshare": "Some selected accounts do not have reshare permission",
     "unauthorizedSingle": "You do not have permission to reshare this account",
     "resharePermTitle": "Reshare",
-    "reshareGranted": "Reshare Granted"
+    "reshareGranted": "Reshare Granted",
+    "registeredUsers": "Registered Users",
+    "selectRecipient": "Select this user",
+    "searchUserPlaceholder": "Search by nickname, username, or email...",
+    "noOtherUsers": "No other registered users found",
+    "noMatchingUsers": "No matching users found",
+    "selectedRecipient": "Selected Recipient",
+    "changeRecipient": "Change",
+    "quickSelect": "Click to select recipient"
   },
   "Profile": {
     "title": "Profile Settings",
