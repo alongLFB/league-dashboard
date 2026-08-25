@@ -41,6 +41,8 @@ README.md
 README.en.md
 CLAUDE.md
 AGENTS.md
+docs
+*.md
 
 # Logs
 logs

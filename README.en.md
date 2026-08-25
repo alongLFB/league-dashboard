@@ -2,38 +2,65 @@
 
 English | [简体中文](./README.md)
 
-This dashboard is a minimalist, elegant, and highly secure multi-account management tool tailored for League of Legends players. It strictly adheres to the philosophy of extreme restraint and premium aesthetics ("Taste"), focusing purely on the core experience.
+This dashboard is a minimalist, elegant, and highly secure multi-account management and sharing platform tailored for League of Legends players. It strictly adheres to the philosophy of extreme restraint and premium aesthetics ("Taste"), focusing purely on the core experience, ranked tracking, and granular account sharing permissions.
+
+---
+
+## 📸 Screenshots & UI Showcase
+
+### 1. Multi-Account Dashboard (Dashboard Preview)
+*Global deep dark aesthetics, frosted glassmorphism cards, live rank & win rate tracking, one-click password copy, and batch multi-select operations.*
+
+![Dashboard Preview](./docs/screenshots/dashboard_preview.png)
+
+### 2. Account Sharing & Secondary Permissions (Share Modal & Quick Select)
+*Automatic registered users listing, real-time search & filtering, 1-click recipient selection, and secondary sharing authorization toggle.*
+
+![Share Modal](./docs/screenshots/share_modal.png)
+
+### 3. Grouped Management View (Manage Shared Users)
+*Intelligent aggregation by shared recipient, collapsible accounts list, instant reshare permission toggle, and single/batch revocation.*
+
+![Manage Shares](./docs/screenshots/manage_shares.png)
+
+---
 
 ## ✨ Core Highlights
 
-1. **Absolute Restraint in Visual Language**
-   - Global deep dark background (intertwined `#0a0a0c` and `#0d1117`), saying goodbye to all cluttered UI elements.
-   - Minimalist login interface: Only a single hovering, borderless password input field to isolate snooping.
-   - All cards and modals incorporate subtle glow and frosted glass effects (Glassmorphism) for a premium feel.
+### 1. 🛡️ Granular Multi-Tier Sharing & Reshare Permission System
+- **Single & Multi-Select Batch Sharing**: Share an individual account directly from its card, or enter "Multi-Select Mode" to batch share multiple accounts to a target recipient in one go.
+- **Registered Users Quick Search & Select**: The share modal automatically fetches the system's registered users, supporting real-time filtering by nickname, username, or email for instant 1-click selection.
+- **Secondary Sharing Authorization Control (`can_reshare`)**: Account owners can toggle "Allow recipient to reshare" when sharing. Only authorized recipients have permission to reshare the account to third parties.
+- **Smart Permission Filtering in Batch Mode**: When batch sharing, the system automatically detects and excludes accounts for which the user lacks reshare permission, enforcing security on both client and server.
+- **Grouped "Manage Sharing" Panel**: The management modal intelligently aggregates all shares by recipient. Account owners can toggle reshare permissions, revoke single accounts, or revoke all access with a single click.
 
-2. **Silky Micro-interactions**
-   - Passwords are strictly masked as `••••••••`. Clicking directly on them, even while masked, accurately copies the true plaintext password.
-   - Built-in ultra-smooth feedback animations and top Toast notifications when clicking "Copy" or "Share".
+### 2. 🌐 Google OAuth 2.0 Sign-In & Account Linking
+- **Fast Sign-In & Registration**: Supports one-click sign-in and instant account creation using your Google account.
+- **Profile Account Linking**: Bind or unbind your Google account anytime in the Profile settings, enabling dual password and Google authentication.
+- **Adaptive Proxy & Origin Handling**: Automatically resolves request origins across environments and supports `HTTPS_PROXY` for local development behind proxies while directly communicating on production VPS instances.
 
-3. **Live Ranked Stats Tracking (Riot Games API)**
-   - Deeply integrated with official Riot Games API to automatically fetch and display the latest Solo/Duo and Flex ranks, division, LP, wins, and losses by Riot ID.
-   - Supports one-click live refresh per card as well as CLI batch synchronization, with rank data persisted in Cloudflare D1 database.
+### 3. 🎮 Live Ranked Stats Tracking (Riot Games API)
+- **Deep Riot Games API Integration**: Automatically queries summoner Riot IDs to fetch and display the latest Solo/Duo and Flex rank tier badges, LP, win rates, and match statistics.
+- **Multi-Level Live Refresh**: Supports on-demand single card refresh as well as CLI batch synchronization (`npm run rank:sync`), with data persisted in Cloudflare D1.
 
-4. **Military-Grade Data Protection**
-   - Utilizes Node.js native `crypto` module with the `AES-256-GCM` algorithm for two-way encryption.
-   - No plaintext LoL passwords are saved in the database; only the `IV:Cipher:AuthTag` combination ciphertext is stored.
-   - As long as the `ENCRYPTION_KEY` is kept safe, attackers will only see meaningless gibberish even if the database file is accidentally leaked.
+### 4. 🔒 Military-Grade Data Protection (AES-256-GCM)
+- **Native Two-Way Encryption**: Uses Node.js native `crypto` module with the `AES-256-GCM` algorithm for hardware-accelerated encryption and decryption.
+- **Zero Plaintext Storage**: The database only stores `IV:Cipher:AuthTag` combination ciphertext. Even if the database is exposed, passwords cannot be decrypted without the secret key.
 
-5. **Full-Stack Internationalization (i18n)**
-   - Natively integrated with `next-intl` for seamless hot-switching between English and Chinese.
-   - Smart IP Detection: The system uses Edge computing nodes to automatically switch to Chinese for visitors with specific IPs (CN/TW/HK/MO).
+### 5. 🎨 Aesthetic Restraint & Silky Micro-Interactions
+- **Deep Dark Aesthetic**: Built on `#0a0a0c` and `#0d1117` dark backgrounds, blended with glassmorphism cards and Hextech neon glows.
+- **Password Privacy & 1-Click Copy**: Passwords are masked as `••••••••` by default. Clicking the mask directly copies the true plaintext password with a smooth toast notification.
+
+### 6. 🌍 Full-Stack Internationalization (i18n)
+- **Seamless Language Switching**: Native `next-intl` integration for instantaneous hot-switching between English and Chinese.
+- **Edge Smart IP Detection**: Edge nodes automatically detect visitor geography (CN/TW/HK/MO) to default to the appropriate locale.
 
 ---
 
 ## 🚀 Deployment & Configuration
 
 ### 1. Environment Setup
-After cloning or downloading the project, copy the environment example file and modify the `.env` file to configure the necessary credentials and ports:
+After cloning or downloading the project, copy the environment template and modify the `.env` file to configure your credentials:
 
 ```bash
 cp .env.example .env
@@ -64,6 +91,9 @@ GOOGLE_CLIENT_SECRET="GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxx"
 # Application Public Base URL (http://localhost:3021 for local, domain for production, without trailing slash)
 NEXT_PUBLIC_APP_URL="https://league-dashboard.alonglfb.com"
 
+# Local Debugging Google OAuth Proxy (Configure only if local environment cannot reach Google APIs directly)
+# HTTPS_PROXY="http://127.0.0.1:7890"
+
 # Cloudflare D1 Database Configuration (HTTP API credentials)
 CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
 CLOUDFLARE_D1_DATABASE_ID="your-cloudflare-d1-database-id"
@@ -73,8 +103,9 @@ CLOUDFLARE_API_TOKEN="your-cloudflare-api-token"
 RIOT_API_KEY="RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
 
+---
+
 ### 2. Local Development
-After configuring the `.env` file:
 
 ```bash
 # Install dependencies
@@ -87,16 +118,21 @@ npm run dev
 npm run rank:sync
 ```
 
+---
+
 ### 3. Docker Container Deployment
+
 This project provides a standard `compose.yaml` for containerized deployment:
 
 ```bash
 docker compose up -d --build
 ```
 
-After successfully starting, visit `http://localhost:3021` in your browser.
+After starting, navigate to `http://localhost:3021` in your browser.
 
-You will be greeted by the system interface. First, you need to click "Create an Account" to register (an email verification code is required). After registering and logging in, you can access the dashboard to manage and share your accounts.
+You can register a new account (via email verification code) or sign in directly with your Google account to start managing and sharing accounts.
+
+---
 
 ### 4. Automated CI/CD Deployment with GitHub Actions
 
@@ -117,6 +153,8 @@ Navigate to your repository's **Settings** -> **Secrets and variables** -> **Act
 - **Automatic**: Automatically triggered on `git push` to the `master` branch.
 - **Manual**: Go to **Actions** -> **Deploy to Server** -> click **Run workflow** in GitHub repository web UI.
 
+---
+
 ## 📖 Related Pages
 
 The project includes complete documentation for open source, privacy, and terms of use:
@@ -127,4 +165,3 @@ The project includes complete documentation for open source, privacy, and terms 
 
 ---
 > 💡 This project is open-sourced under the [MIT License](LICENSE). Feel free to submit an Issue or contribute on [GitHub](https://github.com/alongLFB/league-dashboard)!
-

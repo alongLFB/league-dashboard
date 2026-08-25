@@ -2,31 +2,58 @@
 
 [English](./README.en.md) | 简体中文
 
-本面板是一个极简、优雅且具备强安全性（本地自用）的英雄联盟多账号管理工具。它的设计严格恪守极致克制与高级感（"Taste"）的理念，专注于最纯粹的核心体验。
+本面板是一个极简、优雅且具备强安全性（本地/私有化部署）的英雄联盟多账号管理与共享平台。它的设计严格恪守极致克制与高级感（"Taste"）的理念，专注于最纯粹的核心体验与细粒度的账号共享权限控制。
+
+---
+
+## 📸 界面预览 (Screenshots)
+
+### 1. 多账号控制台 (Dashboard Preview)
+*全局暗黑美学、磨砂玻璃卡片、实时段位胜率追踪、密码一键复制、多选批量操作条*
+
+![Dashboard Preview](./docs/screenshots/dashboard_preview.png)
+
+### 2. 账号分享与二次权限配置 (Share Modal & Quick Select)
+*自动列出系统已注册用户、实时过滤检索、一键快速选择被分享人、二次分享权限授权开关*
+
+![Share Modal](./docs/screenshots/share_modal.png)
+
+### 3. 被分享人聚合管理面板 (Manage Shared Users)
+*按被分享人智能聚合归类、多账号折叠列表、二次分享权限即时切换、单账号/一键全量撤销*
+
+![Manage Shares](./docs/screenshots/manage_shares.png)
+
+---
 
 ## ✨ 核心亮点
 
-1. **绝对克制的视觉语言**
-   - 全局深度暗黑背景（`#0a0a0c` 与 `#0d1117` 交织），告别所有冗杂的界面元素。
-   - 登录界面极简化：只有一行悬空的无边框密码输入框，隔绝窥探。
-   - 所有卡片及弹窗融入细微的发光与磨砂玻璃动效（Glassmorphism），极致高级感。
+### 1. 🛡️ 细粒度多级分享与二次分享权限控制体系
+- **单账号与批量多选分享**：支持在单账号卡片发起分享，或进入「多选模式」一键将多个账号批量分享给目标用户。
+- **系统已注册用户快速检索与选择**：分享面板自动拉取服务器已注册用户列表，支持按昵称、用户名、邮箱实时过滤，一键快捷选中目标用户。
+- **二次分享授权控制 (`can_reshare`)**：号主分享账号时可勾选「允许被分享人再次分享」。只有获得授权的用户才具备二次分享资格；未获得授权者不可分享。
+- **多选智能权限过滤**：批量分享时，系统自动识别并排除无二次分享权限的账号，前后端双重拦截保障权限安全。
+- **「管理分享」智能聚合面板**：管理面板自动按「被分享人」归纳合并名下所有已分享账号，号主可随时一键切换二次分享权限、单独撤销某账号或一键撤销全部。
 
-2. **丝滑的微交互 (Micro-interactions)**
-   - 密码严格遮罩 `••••••••`，即使处于遮罩状态下直接点击，亦能精准复制出真实的明文密码。
-   - 点击“复制”或“分享”时，内置极致平滑的反馈动效和顶部 Toast 通知。
+### 2. 🌐 Google OAuth 2.0 一键登录与绑定
+- **快捷登录与注册**：支持通过 Google 账号一键快捷登录与极速注册。
+- **个人中心账号绑定**：在「个人设置」中支持绑定与解绑 Google 账号，支持密码登录与 Google 登录双轨并行。
+- **全环境代理自适应**：后端回调自动识别访问 Origin，并支持本地开发通过 `HTTPS_PROXY` 代理换取 Token，海外 VPS 自动直连，无缝兼容两端。
 
-3. **实时段位追踪 (Riot API 对接)**
-   - 深度对接拳头官方 Riot Games API，根据召唤师 Riot ID 自动获取并展示单双排位与灵活组排最新段位、胜点（LP）及胜负场次。
-   - 支持卡片级单账号一键实时刷新，并支持命令行批量全量同步，数据自动持久化缓存至 Cloudflare D1 数据库。
+### 3. 🎮 实时段位追踪与同步 (Riot Games API)
+- **官方 API 深度对接**：根据召唤师 Riot ID 自动获取并展示单双排位与灵活组排最新段位勋章、胜点（LP）、胜率及胜负场次。
+- **多维度即时刷新**：支持卡片级单账号一键即时刷新，并支持命令行脚本（`npm run rank:sync`）批量全量同步，数据自动持久化缓存至 Cloudflare D1 数据库。
 
-4. **国防级数据落地保护**
-   - 采用 `Node.js` 原生 `crypto` 模块的 `AES-256-GCM` 算法进行双向加密。
-   - 数据库中不保存任何明文 LOL 密码，只有 `IV:Cipher:AuthTag` 组合密文落地。
-   - 只要对应的 `ENCRYPTION_KEY` 妥善保存，即使数据库文件意外泄露，攻击者也只能看见无意义的乱码。
+### 4. 🔒 国防级数据落地保护 (AES-256-GCM)
+- **原生双向加密**：采用 Node.js 原生 `crypto` 模块的 `AES-256-GCM` 算法对密码进行硬件级加解密。
+- **零明文落地**：数据库中仅保存 `IV:Cipher:AuthTag` 组合密文，即使数据库文件意外泄露，无密钥状态下数据无法被逆向破解。
 
-5. **全链路国际化 (i18n)**
-   - 原生集成 `next-intl`，支持中英文双语无缝热切换。
-   - 智能 IP 检测：系统能够通过 Edge 边缘计算节点，根据访客 IP（CN/TW/HK/MO）自动为您切换至中文模式。
+### 5. 🎨 极致克制的视觉语言与微交互
+- **纯粹暗黑美学**：全局采用 `#0a0a0c` 与 `#0d1117` 深度暗黑背景，配合细腻的磨砂玻璃（Glassmorphism）与 Hextech 霓虹微光。
+- **密码隐私与一键复制**：卡片密码默认严格遮罩为 `••••••••`，直接点击遮罩即可精准复制真实明文密码，附带平滑 Toast 提示。
+
+### 6. 🌍 全链路国际化 (i18n)
+- **多语言无缝切换**：原生集成 `next-intl`，支持中英文双语热切换。
+- **Edge 边缘智能识别**：系统根据访客 IP（CN/TW/HK/MO）自动匹配并切换至中文模式。
 
 ---
 
@@ -64,6 +91,9 @@ GOOGLE_CLIENT_SECRET="GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxx"
 # 应用前端访问主地址 (本地填 http://localhost:3021，生产填部署主域名，无末尾斜杠)
 NEXT_PUBLIC_APP_URL="https://league-dashboard.alonglfb.com"
 
+# 本地调试 Google 登录代理 (仅在本地开发无法直连 Google API 时配置，生产海外服务器无需配置)
+# HTTPS_PROXY="http://127.0.0.1:7890"
+
 # Cloudflare D1 数据库配置 (HTTP API 通信凭证)
 CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
 CLOUDFLARE_D1_DATABASE_ID="your-cloudflare-d1-database-id"
@@ -73,8 +103,9 @@ CLOUDFLARE_API_TOKEN="your-cloudflare-api-token"
 RIOT_API_KEY="RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
 
+---
+
 ### 2. 本地开发与启动
-在配置好 `.env` 环境变量后：
 
 ```bash
 # 安装依赖
@@ -87,7 +118,10 @@ npm run dev
 npm run rank:sync
 ```
 
-### 3. Docker 容器部署
+---
+
+### 3. Docker 容器化部署
+
 本项目提供标准的 `compose.yaml`，支持容器化一键部署：
 
 ```bash
@@ -96,7 +130,9 @@ docker compose up -d --build
 
 成功启动后，在浏览器访问 `http://localhost:3021`。
 
-您将进入系统页面，首先需要点击“Create an Account”注册一个您的账户（注册时需收取邮件验证码），注册登录后即可进入控制台开始管理和分享您的账号。
+您将进入系统页面，首次使用可点击注册账户（通过邮箱验证码）或直接使用 Google 账号授权登录，登录后即可开始管理和分享您的账号。
+
+---
 
 ### 4. GitHub Actions 自动化持续部署 (CI/CD)
 
@@ -117,6 +153,8 @@ docker compose up -d --build
 - **自动触发**：向 `master` 分支执行 `git push` 时自动触发。
 - **手动触发**：在 GitHub 仓库页面点击 **Actions** -> **Deploy to Server** -> **Run workflow** 即可一键手动部署。
 
+---
+
 ## 📖 相关页面
 
 项目包含了完整的开源、隐私以及使用协议说明：
@@ -127,4 +165,3 @@ docker compose up -d --build
 
 ---
 > 💡 本项目基于 [MIT 协议](LICENSE) 开源，欢迎在 [GitHub](https://github.com/alongLFB/league-dashboard) 提交 Issue 或参与共建！
-
