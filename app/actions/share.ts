@@ -168,7 +168,7 @@ export async function getAccountShares(accountId: string) {
   const shares = await db
     .select({
       id: sharedAccounts.id,
-      userId: users.id,
+      userId: sharedAccounts.userId,
       nickname: users.nickname,
       email: users.email,
       canReshare: sharedAccounts.canReshare,
@@ -394,11 +394,10 @@ export async function getBatchAccountShares(accountIds: string[]) {
 
   const shares = await db
     .select({
-      id: sharedAccounts.id,
-      userId: users.id,
+      userId: sharedAccounts.userId,
       nickname: users.nickname,
       email: users.email,
-      accountId: accounts.id,
+      accountId: sharedAccounts.accountId,
       accountAlias: accounts.alias,
       accountRegion: accounts.region,
       accountSummonerId: accounts.summonerId,
@@ -495,10 +494,10 @@ export async function getUsersWithSharedAccounts() {
 
   const shares = await db
     .select({
-      userId: users.id,
+      userId: sharedAccounts.userId,
       userNickname: users.nickname,
       userEmail: users.email,
-      accountId: accounts.id,
+      accountId: sharedAccounts.accountId,
       accountAlias: accounts.alias,
       accountRegion: accounts.region,
       accountSummonerId: accounts.summonerId,

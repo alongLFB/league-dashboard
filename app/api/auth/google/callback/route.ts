@@ -4,6 +4,7 @@ import { db } from '@/lib/db/client';
 import { users } from '@/lib/db/schema';
 import { eq, and, ne } from 'drizzle-orm';
 import { ensureUserGoogleColumns } from '@/lib/db/ensureColumns';
+import { proxyFetch } from '@/lib/proxyFetch';
 import bcrypt from 'bcryptjs';
 
 interface GoogleUserInfo {
@@ -54,7 +55,7 @@ export async function GET(req: NextRequest) {
 
   try {
     // 1. Exchange authorization code for tokens
-    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+    const tokenRes = await proxyFetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -77,11 +78,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const tokenData = await tokenRes.json();
+    const tokenData = (await tokenRes.json()) as any;
     const accessToken = tokenData.access_token;
 
     // 2. Fetch user info from Google
-    const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    const userInfoRes = await proxyFetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
