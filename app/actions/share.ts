@@ -6,7 +6,6 @@ import { eq, and, ne, or, inArray, desc, like } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { requireAuthUserId } from '@/lib/session';
 import { maskEmail } from '@/lib/utils';
-import { ensureSharedAccountColumns } from '@/lib/db/ensureColumns';
 
 export async function getRegisteredUsersForShare(query?: string) {
   const userId = await requireAuthUserId();
@@ -78,7 +77,6 @@ export async function searchUserForShare(query: string) {
 
 export async function shareAccount(accountId: string, targetUserId: string, canReshare: boolean = false) {
   const userId = await requireAuthUserId();
-  await ensureSharedAccountColumns();
   
   // Verify ownership or secondary share permission
   const [account] = await db
@@ -153,7 +151,6 @@ export async function shareAccount(accountId: string, targetUserId: string, canR
 
 export async function getAccountShares(accountId: string) {
   const userId = await requireAuthUserId();
-  await ensureSharedAccountColumns();
   
   // Verify ownership or secondary share permission
   const [account] = await db
@@ -216,7 +213,6 @@ export async function getAccountShares(accountId: string) {
 
 export async function toggleShareResharePermission(accountId: string, targetUserId: string, canReshare: boolean) {
   const userId = await requireAuthUserId();
-  await ensureSharedAccountColumns();
 
   // Only the original account owner can change secondary sharing permissions
   const [account] = await db
@@ -301,7 +297,6 @@ export async function revokeShare(accountId: string, targetUserId: string) {
 
 export async function batchShareAccounts(accountIds: string[], targetUserId: string, canReshare: boolean = false) {
   const userId = await requireAuthUserId();
-  await ensureSharedAccountColumns();
   
   if (accountIds.length === 0) return { success: true };
 
@@ -377,7 +372,6 @@ export async function batchShareAccounts(accountIds: string[], targetUserId: str
 
 export async function getBatchAccountShares(accountIds: string[]) {
   const userId = await requireAuthUserId();
-  await ensureSharedAccountColumns();
   
   if (accountIds.length === 0) return { success: true, shares: [] };
 
@@ -500,7 +494,6 @@ export async function batchRevokeShareForUser(accountIds: string[], targetUserId
 
 export async function getUsersWithSharedAccounts() {
   const userId = await requireAuthUserId();
-  await ensureSharedAccountColumns();
 
   const shares = await db
     .select({

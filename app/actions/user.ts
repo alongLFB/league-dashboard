@@ -8,11 +8,8 @@ import { cookies } from 'next/headers';
 import { decryptSession, encryptSession, requireAuth } from '@/lib/session';
 import bcrypt from 'bcryptjs';
 
-import { ensureUserGoogleColumns } from '@/lib/db/ensureColumns';
-
 export async function getUserProfile() {
   const session = await requireAuth();
-  await ensureUserGoogleColumns();
 
   const [user] = await db
     .select({
@@ -44,8 +41,6 @@ export async function unbindGoogleAccount() {
   const userId = session.userId as string;
 
   try {
-    await ensureUserGoogleColumns();
-
     await db
       .update(users)
       .set({

@@ -1,77 +1,79 @@
 'use server';
 
-import { db } from '@/lib/db/client';
-import { accounts, users, sharedAccounts } from '@/lib/db/schema';
-import { eq, or, inArray, desc } from 'drizzle-orm';
+import { db, queryD1 } from '@/lib/db/client';
+import { accounts, sharedAccounts } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 import { encrypt, decrypt } from '@/lib/crypto';
 import { revalidatePath } from 'next/cache';
 import { requireAuthUserId } from '@/lib/session';
 import { fetchSummonerRank } from '@/lib/riot';
-import { ensureRankColumns, ensureSharedAccountColumns } from '@/lib/db/ensureColumns';
+
+interface AccountRow {
+  id: string;
+  region: string;
+  alias: string;
+  summonerId: string;
+  username: string;
+  password: string;
+  ownerId: string;
+  soloTier: string | null;
+  soloRank: string | null;
+  soloLp: number | null;
+  soloWins: number | null;
+  soloLosses: number | null;
+  flexTier: string | null;
+  flexRank: string | null;
+  flexLp: number | null;
+  flexWins: number | null;
+  flexLosses: number | null;
+  rankUpdatedAt: string | null;
+  createdAt: string;
+  ownerNickname: string | null;
+  myCanReshare: number | null;
+  isSharedWithAnyone: number;
+}
 
 export async function getAccounts() {
   const userId = await requireAuthUserId();
-  await ensureRankColumns();
-  await ensureSharedAccountColumns();
-  
-  const shared = await db
-    .select({
-      accountId: sharedAccounts.accountId,
-      canReshare: sharedAccounts.canReshare,
-    })
-    .from(sharedAccounts)
-    .where(eq(sharedAccounts.userId, userId));
-  
-  const sharedMap = new Map<string, { canReshare: boolean }>();
-  for (const s of shared) {
-    sharedMap.set(s.accountId, { canReshare: Number(s.canReshare) === 1 });
-  }
 
-  const sharedIds = Array.from(sharedMap.keys());
+  const sql = `
+    SELECT 
+      a.id,
+      a.region,
+      a.alias,
+      a.summoner_id AS summonerId,
+      a.username,
+      a.password,
+      a.owner_id AS ownerId,
+      a.solo_tier AS soloTier,
+      a.solo_rank AS soloRank,
+      a.solo_lp AS soloLp,
+      a.solo_wins AS soloWins,
+      a.solo_losses AS soloLosses,
+      a.flex_tier AS flexTier,
+      a.flex_rank AS flexRank,
+      a.flex_lp AS flexLp,
+      a.flex_wins AS flexWins,
+      a.flex_losses AS flexLosses,
+      a.rank_updated_at AS rankUpdatedAt,
+      a.created_at AS createdAt,
+      u.nickname AS ownerNickname,
+      sa_cur.can_reshare AS myCanReshare,
+      EXISTS(SELECT 1 FROM shared_accounts sa_any WHERE sa_any.account_id = a.id) AS isSharedWithAnyone
+    FROM accounts a
+    LEFT JOIN users u ON a.owner_id = u.id
+    LEFT JOIN shared_accounts sa_cur ON (sa_cur.account_id = a.id AND sa_cur.user_id = ?)
+    WHERE a.owner_id = ? OR sa_cur.account_id IS NOT NULL
+    ORDER BY a.created_at DESC;
+  `;
 
-  const whereClause = sharedIds.length > 0
-    ? or(eq(accounts.ownerId, userId), inArray(accounts.id, sharedIds))
-    : eq(accounts.ownerId, userId);
-
-  const resultList = await db
-    .select({
-      id: accounts.id,
-      region: accounts.region,
-      alias: accounts.alias,
-      summonerId: accounts.summonerId,
-      username: accounts.username,
-      password: accounts.password,
-      ownerId: accounts.ownerId,
-      soloTier: accounts.soloTier,
-      soloRank: accounts.soloRank,
-      soloLp: accounts.soloLp,
-      soloWins: accounts.soloWins,
-      soloLosses: accounts.soloLosses,
-      flexTier: accounts.flexTier,
-      flexRank: accounts.flexRank,
-      flexLp: accounts.flexLp,
-      flexWins: accounts.flexWins,
-      flexLosses: accounts.flexLosses,
-      rankUpdatedAt: accounts.rankUpdatedAt,
-      createdAt: accounts.createdAt,
-      ownerNickname: users.nickname,
-    })
-    .from(accounts)
-    .leftJoin(users, eq(accounts.ownerId, users.id))
-    .where(whereClause)
-    .orderBy(desc(accounts.createdAt));
-
-  const allSharedRecords = await db
-    .select({ accountId: sharedAccounts.accountId })
-    .from(sharedAccounts);
-  const allSharedAccountIds = new Set(allSharedRecords.map(s => s.accountId));
+  const resultList = await queryD1<AccountRow>(sql, [userId, userId]);
 
   return resultList.map(acc => {
     const isOwner = acc.ownerId === userId;
-    const userShareInfo = sharedMap.get(acc.id);
-    const canReshare = isOwner ? false : Boolean(userShareInfo?.canReshare);
+    const canReshare = isOwner ? false : Number(acc.myCanReshare) === 1;
     const canShare = isOwner || canReshare;
-    const isShared = !isOwner || allSharedAccountIds.has(acc.id);
+    const isShared = !isOwner || Number(acc.isSharedWithAnyone) === 1;
 
     return {
       id: acc.id,
@@ -108,7 +110,6 @@ export async function addAccount(data: {
   password: string;
 }) {
   const userId = await requireAuthUserId();
-  await ensureRankColumns();
   
   const encryptedPassword = encrypt(data.password);
   
@@ -180,7 +181,6 @@ export async function updateAccount(id: string, data: {
 
 export async function refreshAccountRank(id: string) {
   const userId = await requireAuthUserId();
-  await ensureRankColumns();
 
   const [account] = await db
     .select()

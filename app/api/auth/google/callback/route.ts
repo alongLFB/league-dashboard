@@ -3,7 +3,6 @@ import { decryptOAuthState, encryptSession, decryptSession, getOAuthBaseUrl } fr
 import { db } from '@/lib/db/client';
 import { users } from '@/lib/db/schema';
 import { eq, and, ne } from 'drizzle-orm';
-import { ensureUserGoogleColumns } from '@/lib/db/ensureColumns';
 import { proxyFetch } from '@/lib/proxyFetch';
 import bcrypt from 'bcryptjs';
 
@@ -106,9 +105,6 @@ export async function GET(req: NextRequest) {
         new URL(`${redirectPath}?error=google_invalid_data`, baseUrl)
       );
     }
-
-    // Ensure database columns exist
-    await ensureUserGoogleColumns();
 
     // ─── Mode: BIND (Link Google account in Profile) ─────────────────────────
     if (mode === 'bind') {

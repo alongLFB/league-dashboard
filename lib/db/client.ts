@@ -1,12 +1,7 @@
-/**
- * Cloudflare D1 HTTP API client via Drizzle ORM
- *
- * For VPS / Node.js deployment, we use D1's HTTP API instead of native bindings.
- * Drizzle supports this via the `drizzle-orm/d1` adapter + a fetch-based client.
- */
-
 import { drizzle } from "drizzle-orm/sqlite-proxy";
 import * as schema from "./schema";
+import { getAppDispatcher } from "../proxyFetch";
+import { fetch as undiciFetch } from "undici";
 
 export const getD1ApiUrl = () =>
   `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/d1/database/${process.env.CLOUDFLARE_D1_DATABASE_ID}/query`;
@@ -24,14 +19,14 @@ export async function executeD1Sql(sql: string, params: unknown[] = []): Promise
   }
 
   try {
-    const res = await fetch(getD1ApiUrl(), {
+    const res = await undiciFetch(getD1ApiUrl(), {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ sql, params }),
-      cache: "no-store",
+      dispatcher: getAppDispatcher(),
     });
     return res.ok ? res.json() : null;
   } catch {
@@ -40,7 +35,54 @@ export async function executeD1Sql(sql: string, params: unknown[] = []): Promise
 }
 
 /**
- * Execute a SQL query against Cloudflare D1 via HTTP API.
+ * High-performance direct typed SQL query against Cloudflare D1 HTTP API.
+ */
+export async function queryD1<T = Record<string, unknown>>(
+  sql: string,
+  params: unknown[] = []
+): Promise<T[]> {
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+
+  if (!accountId || !databaseId || !apiToken) {
+    throw new Error(
+      "Cloudflare D1 credentials missing. Please set CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_D1_DATABASE_ID, and CLOUDFLARE_API_TOKEN."
+    );
+  }
+
+  const res = await undiciFetch(getD1ApiUrl(), {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ sql, params }),
+    dispatcher: getAppDispatcher(),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`D1 HTTP API error: ${res.status} – ${err}`);
+  }
+
+  const json = (await res.json()) as {
+    success: boolean;
+    errors: { message: string }[];
+    result: { results: T[]; success: boolean }[];
+  };
+
+  if (!json.success || json.errors?.length > 0) {
+    throw new Error(
+      `D1 query error: ${json.errors?.map((e) => e.message).join(", ")}`
+    );
+  }
+
+  return json.result?.[0]?.results ?? [];
+}
+
+/**
+ * Execute a SQL query against Cloudflare D1 via HTTP API for Drizzle ORM.
  */
 async function d1Fetch(
   sql: string,
@@ -57,15 +99,14 @@ async function d1Fetch(
     );
   }
 
-  const res = await fetch(getD1ApiUrl(), {
+  const res = await undiciFetch(getD1ApiUrl(), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiToken}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ sql, params }),
-    // Disable caching so we always get fresh data
-    cache: "no-store",
+    dispatcher: getAppDispatcher(),
   });
 
   if (!res.ok) {
@@ -109,3 +150,4 @@ export const db = drizzle(
 );
 
 export type DB = typeof db;
+
