@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { encryptOAuthState, decryptSession } from '@/lib/session';
+import { encryptOAuthState, decryptSession, getOAuthBaseUrl } from '@/lib/session';
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -14,13 +14,15 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  const baseUrl = getOAuthBaseUrl(req);
+
   let userId: string | undefined = undefined;
 
   if (mode === 'bind') {
     const sessionCookie = req.cookies.get('admin_session')?.value;
     const session = await decryptSession(sessionCookie);
     if (!session?.userId) {
-      const redirectUrl = new URL(`/${locale}/login`, req.nextUrl.origin);
+      const redirectUrl = new URL(`/${locale}/login`, baseUrl);
       return NextResponse.redirect(redirectUrl);
     }
     userId = session.userId as string;
@@ -33,9 +35,7 @@ export async function GET(req: NextRequest) {
     csrf: crypto.randomUUID(),
   });
 
-  const baseUrl = req.nextUrl.origin || process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || '';
-
-  const redirectUri = `${baseUrl.replace(/\/$/, '')}/api/auth/google/callback`;
+  const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
   const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   googleAuthUrl.searchParams.set('client_id', clientId);

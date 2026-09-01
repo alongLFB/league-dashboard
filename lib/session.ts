@@ -58,3 +58,40 @@ export async function requireAuthUserId(): Promise<string> {
   return session.userId as string;
 }
 
+import type { NextRequest } from 'next/server';
+
+/**
+ * Dynamically and safely resolve base URL for OAuth callbacks and redirects:
+ * 1. Localhost / 127.0.0.1 -> Always preserve local origin (for seamless local development).
+ * 2. Valid public domain from headers -> Use public domain (e.g. from Nginx reverse proxy).
+ * 3. Docker / container internal hosts (0.0.0.0, container IPs) -> Fallback to NEXT_PUBLIC_APP_URL / APP_URL.
+ */
+export function getOAuthBaseUrl(req: NextRequest): string {
+  const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || '';
+  const proto = req.headers.get('x-forwarded-proto') || (req.nextUrl.protocol ? req.nextUrl.protocol.replace(':', '') : 'http');
+
+  // 1. Local development: If accessed via localhost or 127.0.0.1, always prioritize local host
+  if (host.includes('localhost') || host.includes('127.0.0.1')) {
+    return `${proto}://${host}`.replace(/\/$/, '');
+  }
+
+  // 2. Production with valid public domain (not 0.0.0.0, and not internal private IP)
+  if (host && !host.includes('0.0.0.0') && !host.startsWith('10.') && !host.startsWith('172.') && !host.startsWith('192.168.') && host.includes('.')) {
+    return `${proto}://${host}`.replace(/\/$/, '');
+  }
+
+  // 3. Fallback to configured production URL (e.g. NEXT_PUBLIC_APP_URL)
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL;
+  if (envUrl) {
+    return envUrl.replace(/\/$/, '');
+  }
+
+  // 4. Ultimate fallback from req.nextUrl.origin, ensuring 0.0.0.0 is cleaned
+  let origin = req.nextUrl.origin || 'http://localhost:3021';
+  if (origin.includes('0.0.0.0')) {
+    origin = origin.replace('0.0.0.0', '127.0.0.1');
+  }
+  return origin.replace(/\/$/, '');
+}
+
+

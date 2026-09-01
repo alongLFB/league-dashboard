@@ -8,6 +8,6 @@ services:
     container_name: league-dashboard-app
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-3021}:3021"
+      - "127.0.0.1:${APP_PORT:-3021}:3021"
     env_file:
       - .env

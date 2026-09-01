@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { decryptOAuthState, encryptSession, decryptSession } from '@/lib/session';
+import { decryptOAuthState, encryptSession, decryptSession, getOAuthBaseUrl } from '@/lib/session';
 import { db } from '@/lib/db/client';
 import { users } from '@/lib/db/schema';
 import { eq, and, ne } from 'drizzle-orm';
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const state = searchParams.get('state');
   const error = searchParams.get('error');
 
-  const baseUrl = req.nextUrl.origin || process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || '';
+  const baseUrl = getOAuthBaseUrl(req);
 
   const statePayload = await decryptOAuthState(state || '');
   const mode = (statePayload?.mode as string) || 'login';
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const redirectUri = `${baseUrl.replace(/\/$/, '')}/api/auth/google/callback`;
+  const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
   try {
     // 1. Exchange authorization code for tokens
